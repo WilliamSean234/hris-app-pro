@@ -1,0 +1,90 @@
+/* --- SIDEBAR --- */
+.sidebar {
+    width: var(--sidebar-width);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    background-color: var(--sidebar-bg-color);
+    color: white;
+    padding: 20px 10px;
+    /* Padding horizontal dikurangi */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    font-size: 1.3rem;
+    /* Ukuran font logo sedikit dikurangi */
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.main-nav-new {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+/* Hapus dot/bullet points */
+.main-nav-new ul {
+    list-style: none;
+    /* PENTING: Menghapus dot */
+    padding: 0;
+    margin: 0;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 10px;
+    /* Padding dikurangi */
+    margin-bottom: 3px;
+    background: none;
+    border: none;
+    color: #ced4da;
+    text-align: left;
+    font-size: 0.95em;
+    /* Ukuran font disesuaikan */
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-link i {
+    margin-right: 8px;
+    /* Jarak ikon dikurangi */
+    font-size: 1em;
+}
+
+.nav-link:hover {
+    background-color: #3f5469;
+    /* Warna hover baru */
+    color: white;
+}
+
+.nav-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Tambah sedikit bayangan */
+}
+
+.user-profile {
+    padding: 15px 0;
+    border-top: 1px solid #495057;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Diposisikan di tengah */
+    gap: 8px;
+    color: #adb5bd;
+    font-size: 0.9em;
+    flex-shrink: 0;
+}

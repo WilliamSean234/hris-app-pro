@@ -1,0 +1,42 @@
+<div id="detail-section">
+    <button class="btn btn-secondary" onclick="loadPage('core-hr')">
+        <i class="fas fa-arrow-left"></i> Kembali ke Daftar
+    </button>
+    
+    <h2 id="detail-name" class="section-title mt-20">Detail Karyawan</h2>
+    
+    <div class="card wide-card">
+        <div class="detail-tabs">
+            <button class="tab-button active" data-tab="personal" onclick="changeDetailTab('personal')">Data Pribadi</button>
+            <button class="tab-button" data-tab="job" onclick="changeDetailTab('job')">Pekerjaan & Kontrak</button>
+            <button class="tab-button" data-tab="career" onclick="changeDetailTab('career')">Riwayat Karir</button>
+            <button class="tab-button" data-tab="docs" onclick="changeDetailTab('docs')">Dokumen Digital</button>
+        </div>
+
+        <div class="detail-content-area">
+            
+            <div id="personal" class="tab-content">
+                <button class="btn btn-warning btn-sm" onclick="openModal('edit', currentEmployeeIndex)">
+                    Edit Data
+                </button>
+                <div id="personal-data-container" class="data-detail-grid mt-20">
+                    </div>
+            </div>
+
+            <div id="job" class="tab-content" style="display: none;">
+                <div id="job-data-container" class="data-detail-grid">
+                    </div>
+            </div>
+            
+            <div id="career" class="tab-content" style="display: none;">
+                <div class="timeline-container" id="career-history-container">
+                    </div>
+            </div>
+
+            <div id="docs" class="tab-content" style="display: none;">
+                <ul id="document-list-container">
+                    </ul>
+            </div>
+        </div>
+    </div>
+</div>

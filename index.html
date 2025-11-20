@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRIS PRO - Human Resources Information System</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+
+    <div id="sidebar" class="sidebar">
+        <div class="logo">HRIS PRO</div>
+        
+        <nav class="main-nav-new">
+            <ul>
+                <li><button class="nav-link active" data-page="dashboard" onclick="loadPage('dashboard')">
+                    <i class="fas fa-home"></i> Dashboard & Overview
+                </button></li>
+                <li><button class="nav-link" data-page="core-hr" onclick="loadPage('core-hr')">
+                    <i class="fas fa-users"></i> Core HR / Karyawan
+                </button></li>
+                <li><button class="nav-link" data-page="attendance" onclick="loadPage('attendance')">
+                    <i class="fas fa-clock"></i> Time & Attendance
+                </button></li>
+                <li><button class="nav-link" data-page="payroll" onclick="loadPage('payroll')">
+                    <i class="fas fa-wallet"></i> Payroll Simulation
+                </button></li>
+            </ul>
+        </nav>
+
+        <div class="user-profile">
+            <i class="fas fa-user-circle"></i>
+            <span>Admin User</span>
+        </div>
+    </div>
+
+    <div id="content">
+        <div id="page-content">
+            <p>Memuat...</p>
+        </div>
+    </div>
+
+    <div id="employee-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title">Tambah Karyawan Baru</h2>
+            <form id="employee-form" onsubmit="handleEmployeeSubmit(event)">
+                <input type="hidden" id="employee-id">
+                
+                <label for="nik">NIK:</label>
+                <input type="text" id="nik" required>
+
+                <label for="name">Nama Lengkap:</label>
+                <input type="text" id="name" required>
+                
+                <label for="position">Jabatan:</label>
+                <input type="text" id="position" required>
+                
+                <label for="department">Departemen:</label>
+                <input type="text" id="department" required>
+
+                <label for="contractStatus">Status Kontrak:</label>
+                <select id="contractStatus" required>
+                    <option value="Tetap">Tetap</option>
+                    <option value="Kontrak">Kontrak</option>
+                    <option value="Magang">Magang</option>
+                </select>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary" id="modal-submit-button">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="shift-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeShiftModal()">&times;</span>
+            <h2 id="shift-modal-title">Pengaturan Shift</h2>
+            <form id="shift-form" onsubmit="handleShiftSubmit(event)">
+                <input type="hidden" id="shift-id">
+                
+                <label for="shift-name">Nama Shift:</label>
+                <input type="text" id="shift-name" required>
+
+                <label for="shift-in">Jam Masuk (HH:MM):</label>
+                <input type="time" id="shift-in" required>
+                
+                <label for="shift-out">Jam Keluar (HH:MM):</label>
+                <input type="time" id="shift-out" required>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeShiftModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Shift</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="approval-modal" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <span class="close-button" onclick="closeApprovalModal()">&times;</span>
+            <h2 id="approval-modal-title">Review Permintaan</h2>
+            <form id="approval-form" onsubmit="handleApprovalSubmit(event)">
+                
+                <div id="review-content" class="review-content-grid">
+                    </div>
+                
+                <div class="form-actions mt-30">
+                    <button type="button" class="btn btn-secondary" onclick="closeApprovalModal()">Batal</button>
+                    <button type="button" class="btn btn-danger" onclick="processApproval('reject')">Tolak</button>
+                    <button type="button" class="btn btn-success" onclick="processApproval('approve')">Setujui</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="leave-history-modal" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <span class="close-button" onclick="closeLeaveHistoryModal()">&times;</span>
+            <h2 id="leave-history-title">Riwayat Cuti Karyawan</h2>
+            <p id="leave-history-name" style="margin-bottom: 20px; font-weight: bold;"></p>
+            
+            <table class="data-table">
+                <thead>
+                    <tr><th>Jenis Cuti</th><th>Tanggal Cuti</th><th>Durasi</th><th>Alasan</th><th>Status</th></tr>
+                </thead>
+                <tbody id="leave-history-body-modal">
+                    </tbody>
+            </table>
+
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeLeaveHistoryModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/core.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPage('dashboard');
+        });
+    </script>
+</body>
+</html>

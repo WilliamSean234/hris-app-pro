@@ -1,0 +1,32 @@
+<h2 class="section-title">Payroll Simulation & Calculation</h2>
+
+<section class="card wide-card">
+    <h3>Simulasi Gaji Bulanan (November 2025)</h3>
+    <p class="text-info">Perhitungan gaji sudah termasuk potongan otomatis dari **Data Absensi & Lembur**.</p>
+
+    <div class="controls-container">
+        <button class="btn btn-primary" onclick="generatePayroll()">
+            <i class="fas fa-calculator"></i> Generate Payroll
+        </button>
+
+        <div class="control-group">
+            <label for="month-filter">Filter Bulan/Tahun:</label>
+            <input type="month" id="month-filter" value="2025-11">
+        </div>
+    </div>
+
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Karyawan</th>
+                <th>Gaji Pokok</th>
+                <th>Tunj. Hadir</th>
+                <th>Pot. Absen/Telat</th>
+                <th>Total Gaji Bersih</th>
+                <th>Slip Gaji</th>
+            </tr>
+        </thead>
+        <tbody id="payroll-table-body">
+        </tbody>
+    </table>
+</section>

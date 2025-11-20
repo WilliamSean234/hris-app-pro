@@ -1,0 +1,494 @@
+/* css/components.css (Gaya Tabel, Kartu, Tombol, Modal, dan Timeline) */
+
+/* --- GENERAL & UTILITY --- */
+.text-info {
+    color: var(--info-color);
+}
+
+.text-danger {
+    color: var(--danger-color);
+}
+
+.text-warning {
+    color: var(--warning-color);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+.text-info-small {
+    font-size: 0.9em;
+    color: var(--info-color);
+    margin-bottom: 10px;
+}
+
+.mt-10 {
+    margin-top: 10px;
+}
+
+.mt-20 {
+    margin-top: 20px;
+}
+
+.mt-30 {
+    margin-top: 30px;
+}
+
+.mb-10 {
+    margin-bottom: 10px;
+}
+
+.mb-20 {
+    margin-bottom: 20px;
+}
+
+.mb-30 {
+    margin-bottom: 30px;
+}
+
+
+/* --- CARD & GRID --- */
+.card {
+    background-color: var(--card-bg-color);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    /* PENTING: Memastikan padding tidak menambah lebar */
+}
+
+.wide-card {
+    width: 100%;
+}
+
+.card-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.metric-card {
+    flex: 1;
+    min-width: 200px;
+    padding: 15px;
+    background-color: var(--card-bg-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-left: 5px solid var(--primary-color);
+}
+
+.metric-card p {
+    margin: 0;
+    font-size: 0.9em;
+    color: #6c757d;
+}
+
+.metric-card h3 {
+    margin: 5px 0 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.section-flex {
+    display: flex;
+    gap: 20px;
+}
+
+.flex-item-large {
+    flex: 2;
+}
+
+.flex-item-small {
+    flex: 1;
+}
+
+.warning-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+}
+
+.warning-list li {
+    margin-bottom: 8px;
+    font-size: 0.95em;
+}
+
+.warning-list i {
+    margin-right: 8px;
+    font-size: 1.1em;
+}
+
+/* --- BUTTONS & CONTROLS --- */
+.btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    font-size: 0.9em;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: #212529;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8em;
+    margin-right: 5px;
+}
+
+.controls-container {
+    display: flex;
+    /* Menggunakan flex-wrap untuk responsif pada layar kecil */
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-group label {
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #495057;
+}
+
+.control-group select {
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+
+/* --- TABLE --- */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    /* Memungkinkan scroll horizontal hanya pada tabel */
+    margin-bottom: 20px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    min-width: 700px;
+    /* Lebar minimum untuk tampilan desktop yang baik */
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.data-table th {
+    background-color: #f1f3f5;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.employee-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 80px;
+    text-align: center;
+}
+
+.status-tetap,
+.status-approved {
+    background-color: #d4edda;
+    color: var(--success-color);
+}
+
+.status-kontrak,
+.status-warning {
+    background-color: #fff3cd;
+    color: var(--warning-color);
+}
+
+.status-danger,
+.status-rejected {
+    background-color: #f8d7da;
+    color: var(--danger-color);
+}
+
+.status-pending {
+    background-color: #e2e3e5;
+    color: var(--secondary-color);
+}
+
+
+/* --- TABS (Detail Karyawan & Attendance) --- */
+.detail-tabs,
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tab-button {
+    padding: 10px 15px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    color: var(--secondary-color);
+    transition: color 0.2s, border-bottom 0.2s;
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--primary-color);
+    font-weight: 600;
+}
+
+.tab-button.active-tab {
+    /* Gunakan warna primer (misalnya biru) */
+    color: #007bff;
+    /* Tambahkan garis bawah dengan warna primer */
+    border-bottom: 3px solid #007bff;
+    /* Pastikan z-index jika ada masalah overlap */
+    z-index: 2;
+}
+
+.tab-content {
+    display: none;
+    padding-top: 15px;
+}
+
+/* Tampilkan hanya yang memiliki class 'active' */
+.tab-content.active {
+    display: block;
+}
+
+/* --- DETAIL KARYAWAN GRID --- */
+.data-detail-grid {
+    /* Menggunakan 300px agar rapi, bahkan di layar lebih kecil */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    padding: 10px 0;
+}
+
+.data-item {
+    padding: 8px 0;
+    border-bottom: 1px dashed #ced4da;
+}
+
+.data-item span {
+    font-weight: normal;
+    color: #6c757d;
+    display: block;
+    font-size: 0.9em;
+}
+
+.data-item strong {
+    font-weight: 600;
+    color: #212529;
+    display: block;
+}
+
+/* --- TIMELINE RIWAYAT KARIR --- */
+.timeline-container {
+    position: relative;
+    padding-left: 30px;
+    border-left: 2px solid #ced4da;
+    margin-top: 20px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -37px;
+    top: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    border: 3px solid white;
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.timeline-date {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* --- MODAL --- */
+.modal {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+}
+
+.modal-lg {
+    max-width: 800px;
+}
+
+/* Untuk modal review besar */
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.close-button:hover {
+    color: #000;
+}
+
+.modal-content h2,
+.modal-content h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.modal-content label {
+    display: block;
+    margin-top: 10px;
+    font-weight: 500;
+    font-size: 0.9em;
+}
+
+.modal-content input,
+.modal-content select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-footer {
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* --- GRID REVIEW (Modal Approval) --- */
+.review-content-grid {
+    display: grid;
+    /* Grid 2 kolom dengan jarak responsif */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px 30px;
+    padding: 10px 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.review-content-grid .data-item.wide {
+    grid-column: 1 / -1;
+}
+
+.review-content-grid .data-item p {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 5px;
+    white-space: pre-wrap;
+    font-size: 0.9em;
+}

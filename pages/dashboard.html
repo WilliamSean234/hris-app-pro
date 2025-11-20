@@ -1,0 +1,45 @@
+<h2 class="section-title">Dashboard & Overview</h2>
+
+<div class="card-grid">
+    <div class="metric-card">
+        <i class="fas fa-users metric-icon"></i>
+        <p>Total Karyawan Aktif</p>
+        <h3 id="metric-total-active">0</h3>
+    </div>
+    <div class="metric-card">
+        <i class="fas fa-chart-line metric-icon"></i>
+        <p>Tingkat Absensi (Bulan Ini)</p>
+        <h3 id="metric-absensi-rate">0.0%</h3>
+    </div>
+    <div class="metric-card">
+        <i class="fas fa-calendar-times metric-icon"></i>
+        <p>Pengajuan Cuti Menunggu</p>
+        <h3 id="metric-pending-leave">0</h3>
+    </div>
+    <div class="metric-card">
+        <i class="fas fa-exclamation-triangle metric-icon"></i>
+        <p>Kontrak Berakhir (30 Hari)</p>
+        <h3 id="metric-contract-ending">0</h3>
+    </div>
+</div>
+
+<div class="section-flex">
+    <div class="card flex-item-large">
+        <h4>Peringatan Sistem</h4>
+        <ul id="system-warnings" class="warning-list">
+            <li>Memuat Peringatan...</li>
+        </ul>
+    </div>
+
+    <div class="card flex-item-small">
+        <h4>Akses Cepat</h4>
+        <div class="quick-links-group">
+            <button class="btn btn-primary btn-block mb-10" onclick="loadPage('core-hr')">
+                <i class="fas fa-plus"></i> Tambah Karyawan
+            </button>
+            <button class="btn btn-info btn-block mb-10" onclick="loadPage('attendance')">
+                <i class="fas fa-check-circle"></i> Review Approval
+            </button>
+        </div>
+    </div>
+</div>

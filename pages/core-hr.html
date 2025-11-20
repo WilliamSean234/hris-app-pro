@@ -1,0 +1,32 @@
+<div id="list-section">
+    <h2 class="section-title">Master Data Karyawan</h2>
+
+    <div class="controls-container">
+        <button class="btn btn-primary" onclick="openModal('add')">
+            <i class="fas fa-plus"></i> Tambah Karyawan Baru
+        </button>
+
+        <div class="control-group">
+            <label for="department-filter">Filter Departemen:</label>
+            <select id="department-filter" onchange="filterAndRenderEmployees()">
+                <option value="Semua">Semua Departemen</option>
+                <option value="IT">IT</option>
+                <option value="HRD">HRD</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="sort-order">Urutkan Berdasarkan:</label>
+            <select id="sort-order" onchange="filterAndRenderEmployees()">
+                <option value="name-asc">Nama (A-Z)</option>
+                <option value="name-desc">Nama (Z-A)</option>
+            </select>
+        </div>
+    </div>
+
+    <table id="employee-table" class="data-table">
+        <thead>
+        </thead>
+        <tbody id="employee-list-body"> </tbody>
+    </table>
+</div>
