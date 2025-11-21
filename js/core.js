@@ -81,11 +81,23 @@ function loadPage(pageId) {
 // js/core.js - Perbaikan initializePage
 
 function initializePage(pageId) {
+    // 1. Logic Dashboard & Overview
     if (pageId === 'dashboard') {
-        updateDashboardMetrics();
-    } else if (pageId === 'core-hr') {
+        // Inisialisasi atau konfirmasi tanggal simulasi saat memuat dashboard
+        if (typeof currentCalendarDate === 'undefined' || !(currentCalendarDate instanceof Date)) {
+            currentCalendarDate = new Date();
+            currentCalendarDate.setFullYear(2025, 10, 21);
+        }
+        updateDashboardMetrics(); // Panggil fungsi yang menginisialisasi Kalender
+    }
+
+    // 2. Logic Core HR / Karyawan (EXISTING)
+    else if (pageId === 'core-hr') {
         filterAndRenderEmployees(); // Render list saat halaman Core HR dimuat
-    } else if (pageId === 'employee-detail') {
+    }
+
+    // 3. Logic Detail Karyawan (EXISTING)
+    else if (pageId === 'employee-detail') {
         if (pageLoadContext.employeeIndex !== undefined) {
             const index = pageLoadContext.employeeIndex;
             const emp = employees[index];
@@ -106,11 +118,9 @@ function initializePage(pageId) {
         renderApprovalRecords();
 
         // Panggil inisialisasi tab
-        // Kita paksa klik tombol Pengajuan Cuti (Approval)
-        const defaultButton = document.querySelector('.tabs-nav .tab-button'); // Ambil tombol pertama
+        const defaultButton = document.querySelector('#attendance .tabs-nav .tab-button');
         if (defaultButton) {
-            // Panggil fungsi switchTab/changeAttendanceTab dengan parameter konten pertama
-            switchTab('leave', 'leave-requests-content', defaultButton);
+            switchTab(null, 'leave-requests-content', defaultButton);
         }
     }
     // 5. Logic Payroll Simulation (FINAL)
@@ -234,6 +244,9 @@ function openModal(mode, index = null) {
 function closeModal() {
     document.getElementById('employee-modal').classList.add('hidden');
     document.getElementById('employee-form').reset();
+
+    const modal = document.getElementById('calculation-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 function handleEmployeeSubmit(event) {

@@ -6,6 +6,8 @@
 // --- 1. DASHBOARD FUNCTIONS ---
 
 // js/render.js - BAGIAN PERBAIKAN DASHBOARD
+const formatRupiah = (num) => `Rp ${Math.floor(num).toLocaleString('id-ID')}`;
+
 
 function updateDashboardMetrics() {
     // 1. Total Karyawan Aktif
@@ -32,6 +34,33 @@ function updateDashboardMetrics() {
     const contractEndingEl = document.getElementById('metric-contract-ending');
     // Angka 0 sesuai gambar
     if (contractEndingEl) contractEndingEl.textContent = '0';
+
+    // --- Inisialisasi Tanggal Simulasi ---
+    const today = new Date();
+    // Atur hari ini ke 21 Nov 2025 untuk simulasi data
+    today.setFullYear(2025, 10, 21);
+
+    // Update karyawan cuti hari ini
+    let activeLeaveCount = 0;
+    if (typeof leaveRequests !== 'undefined') {
+        activeLeaveCount = leaveRequests.filter(req => {
+            const start = new Date(req.startDate);
+            const end = new Date(req.endDate);
+            // Cek apakah tanggal hari ini berada dalam rentang cuti
+            return req.status === 'Approved' && start <= today && end >= today;
+        }).length;
+    }
+    document.getElementById('active-leave').textContent = activeLeaveCount;
+
+    // Update pending approvals (simulasi)
+    document.getElementById('pending-approvals').textContent = 2; // Contoh: 2 permintaan cuti menunggu
+
+    // INIT KALENDER: Panggil fungsi render kalender saat metrik diupdate
+    // Gunakan currentCalendarDate yang sudah disimulasikan
+    renderHRCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+    document.getElementById('current-month-display').textContent = getMonthName(currentCalendarDate);
+
+
 
     // Render Peringatan
     renderSystemWarnings();
@@ -425,7 +454,6 @@ function renderPayrollDetail(month) {
         const netSalary = gross - bpjsTotal - pph21;
 
         // Helper untuk format Rupiah
-        const formatRupiah = (num) => `Rp ${Math.floor(num).toLocaleString('id-ID')}`;
 
         html += `
             <tr>
@@ -498,3 +526,214 @@ function renderDisbursementTable() {
 //         tableBody.appendChild(row);
 //     });
 // }
+
+
+/* CALENDAR */
+// Variabel Global untuk Kalender
+let currentCalendarDate = new Date();
+// Atur tanggal ke 21 November 2025 (sama dengan tanggal saat ini di simulasi data)
+currentCalendarDate.setFullYear(2025, 10, 21);
+// Helper function untuk mendapatkan nama bulan
+const getMonthName = (date) => date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+
+// Fungsi untuk mengganti bulan yang dilihat di kalender
+function changeMonth(delta) {
+    // Pastikan currentCalendarDate adalah objek Date yang valid
+    if (!(currentCalendarDate instanceof Date)) {
+        currentCalendarDate = new Date();
+    }
+
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
+    renderHRCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+
+    // Update display bulan di header kalender
+    document.getElementById('current-month-display').textContent = getMonthName(currentCalendarDate);
+}
+
+// Fungsi utama untuk me-render kalender HR (Fungsi yang sangat penting untuk tampilan kalender)
+function renderHRCalendar(year, month) {
+    const today = new Date();
+    // Atur tanggal hari ini ke simulasi 21 November 2025 agar sesuai dengan data
+    today.setFullYear(2025, 10, 21);
+
+    const calendarContainer = document.getElementById('hr-calendar-container');
+    if (!calendarContainer) return;
+
+    calendarContainer.innerHTML = '';
+
+    // 1. Definisikan Hari Awal dan Akhir Bulan
+    const firstDayOfMonth = new Date(year, month, 1);
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    // getDay() mengembalikan 0 untuk Minggu, 1 untuk Senin, dst.
+    const firstDayOfWeek = firstDayOfMonth.getDay();
+
+    // 2. Buat Header Hari
+    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+    dayNames.forEach(day => {
+        calendarContainer.innerHTML += `<div class="day-header">${day}</div>`;
+    });
+
+    // 3. Hitung tanggal mulai grid (untuk mengisi hari-hari di bulan sebelumnya)
+    let startDate = new Date(firstDayOfMonth);
+    // Mundur ke hari Minggu pertama di baris kalender
+    startDate.setDate(startDate.getDate() - firstDayOfWeek);
+
+    // 4. Looping untuk membuat sel kalender (Total 6 minggu x 7 hari = 42 sel untuk memastikan tampilan penuh)
+    for (let i = 0; i < 42; i++) {
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + i);
+
+        const currentDay = currentDate.getDate();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+
+        let cellClass = 'day-cell';
+        let cellHTML = `<span>${currentDay}</span>`;
+
+        // Tandai sel bulan lain
+        if (currentMonth !== month) {
+            cellClass += ' other-month';
+        }
+
+        // Tandai Hari Ini
+        const isToday = currentDay === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+        if (isToday) {
+            cellClass += ' today';
+        }
+
+        // 5. Cek Event untuk Tanggal Ini
+        let eventsHTML = '';
+        const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
+
+        // A. Cek Event HR Global (Gajian, Pelatihan)
+        if (typeof hrEvents !== 'undefined') {
+            hrEvents.filter(e => e.date === dateString).forEach(event => {
+                const typeClass = event.type === 'payroll' ? 'event-payroll' : 'event-other';
+                eventsHTML += `<span class="event-indicator ${typeClass}" title="${event.title}">${event.title}</span>`;
+            });
+        }
+
+        // B. Cek Cuti
+        if (typeof leaveRequests !== 'undefined') {
+            leaveRequests.filter(req => req.status === 'Approved' &&
+                new Date(req.startDate) <= currentDate &&
+                new Date(req.endDate) >= currentDate
+            ).forEach(req => {
+                eventsHTML += `<span class="event-indicator event-leave" title="CUTI: ${req.name}">Cuti: ${req.name}</span>`;
+            });
+        }
+
+        // C. Cek Anniversary (Hanya pada bulan yang sedang dilihat)
+        if (currentMonth === month && typeof employees !== 'undefined') {
+            employees.filter(emp => {
+                const joinDate = new Date(emp.joinDate);
+                // Cek jika tanggal join sama dengan tanggal saat ini di bulan ini
+                return joinDate.getDate() === currentDay && joinDate.getMonth() === currentMonth;
+            }).forEach(emp => {
+                const years = currentYear - new Date(emp.joinDate).getFullYear();
+                if (years >= 1) { // Hanya tampilkan jika sudah 1 tahun atau lebih
+                    eventsHTML += `<span class="event-indicator event-anniversary" title="Anniversary ${years} Tahun: ${emp.name}">${years} Tahun Kerja</span>`;
+                }
+            });
+        }
+
+        calendarContainer.innerHTML += `<div class="${cellClass}">${cellHTML}${eventsHTML}</div>`;
+    }
+
+    // Panggil fungsi untuk mengisi daftar event hari ini (hanya jika hari ini)
+    if (year === today.getFullYear() && month === today.getMonth()) {
+        renderTodayEvents(today);
+    }
+}
+
+// Fungsi untuk mengisi daftar event hari ini di sidebar
+function renderTodayEvents(date) {
+    const todayEventsList = document.getElementById('today-events-list');
+    const todayDateDisplay = document.getElementById('today-date-display');
+
+    if (!todayEventsList || !todayDateDisplay) return;
+
+    todayEventsList.innerHTML = '';
+
+    const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    todayDateDisplay.textContent = date.toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    let foundEvents = false;
+
+    // A. Event HR Global
+    if (typeof hrEvents !== 'undefined') {
+        hrEvents.filter(e => e.date === dateString).forEach(event => {
+            const typeClass = event.type === 'payroll' ? 'item-payroll' : 'item-other';
+            todayEventsList.innerHTML += `<div class="event-item ${typeClass}"><strong>${event.title}</strong></div>`;
+            foundEvents = true;
+        });
+    }
+
+    // B. Cuti Hari Ini
+    if (typeof leaveRequests !== 'undefined') {
+        leaveRequests.filter(req => req.status === 'Approved' &&
+            new Date(req.startDate) <= date &&
+            new Date(req.endDate) >= date
+        ).forEach(req => {
+            todayEventsList.innerHTML += `<div class="event-item item-leave"><strong>Cuti:</strong> ${req.name} (${req.type})</div>`;
+            foundEvents = true;
+        });
+    }
+
+    // C. Anniversary Hari Ini
+    if (typeof employees !== 'undefined') {
+        employees.filter(emp => {
+            const joinDate = new Date(emp.joinDate);
+            const years = date.getFullYear() - joinDate.getFullYear();
+            return years >= 1 && joinDate.getDate() === date.getDate() && joinDate.getMonth() === date.getMonth();
+        }).forEach(emp => {
+            const years = date.getFullYear() - new Date(emp.joinDate).getFullYear();
+            todayEventsList.innerHTML += `<div class="event-item item-anniversary"><strong>Anniversary ${years} Tahun:</strong> ${emp.name}</div>`;
+            foundEvents = true;
+        });
+    }
+
+    if (!foundEvents) {
+        todayEventsList.innerHTML = `<p class="text-muted text-center mt-10">Tidak ada event spesial hari ini.</p>`;
+    }
+}
+
+// Fungsi untuk menampilkan modal perhitungan
+function showCalculationModal(employeeName, calculationType, details) {
+    const modal = document.getElementById('calculation-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBody = document.getElementById('modal-body-content');
+
+    if (!modal || !modalBody) return;
+
+    modalTitle.textContent = `Perhitungan ${calculationType} untuk ${employeeName}`;
+
+    let html = `
+        <table class="data-table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Deskripsi</th>
+                    <th>Nilai</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    details.forEach(item => {
+        const valueDisplay = item.isRupiah ? formatRupiah(item.value) : item.value;
+        html += `
+            <tr>
+                <td>${item.label}</td>
+                <td>${valueDisplay}</td>
+                <td>${item.note || ''}</td>
+            </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+
+    modalBody.innerHTML = html;
+
+    modal.style.display = 'flex';
+}

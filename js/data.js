@@ -197,8 +197,24 @@ const attendanceData = [
 
 // --- 3. DATA PENGAJUAN CUTI (APPROVAL) ---
 const leaveRequests = [
-    { id: 101, name: "Joko Susilo", type: "Cuti Tahunan", period: "2025-12-01 s/d 2025-12-05", days: 5, remaining: "7 Hari", status: "Menunggu Atasan" },
-    { id: 102, name: "Rani Dewi", type: "Cuti Sakit", period: "2025-11-20 s/d 2025-11-20", days: 1, remaining: "10 Hari", status: "Menunggu HR" }
+    {
+        id: 101, name: "Joko Susilo", type: "Cuti Tahunan", startDate: "2025-11-24", // Mulai 24 Nov
+        endDate: "2025-11-26", period: "2025-11-24 s/d 2025-11-26", days: 2, remaining: "7 Hari", status: "Menunggu Atasan"
+    },
+    {
+        id: 102, name: "Rani Dewi", type: "Cuti Sakit", startDate: "2025-11-21", // Hari ini
+        endDate: "2025-11-21", period: "2025-11-21 s/d 2025-11-21", days: 1, remaining: "10 Hari", status: "Menunggu HR"
+    }
+];
+
+// --- Data Event HR Lain (BARU) ---
+const hrEvents = [
+    // Jadwal Gajian (Simulasi tanggal 25 setiap bulan)
+    { date: "2025-11-25", title: "Transfer Gaji Bulanan", type: "payroll" },
+    { date: "2025-12-25", title: "Transfer Gaji Bulanan", type: "payroll" },
+    // Event lain (Contoh: Pelatihan)
+    { date: "2025-11-18", title: "Pelatihan K3", type: "training" },
+    { date: "2025-11-20", title: "Rapat Tinjauan Q4", type: "meeting" },
 ];
 
 // --- 4. DATA SALDO CUTI ---
