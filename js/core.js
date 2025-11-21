@@ -112,6 +112,17 @@ function initializePage(pageId) {
         }
     } else if (pageId === 'payroll') {
         renderPayrollRekap();
+
+        // Cek jika ada konteks untuk menampilkan detail payroll
+        if (pageLoadContext.month) {
+            renderPayrollDetail(pageLoadContext.month);
+        }
+        else if (pageLoadContext && pageLoadContext.month) {
+            setPayrollView('detail', pageLoadContext.month);
+        } else {
+            // Default: Tampilkan rekap
+            setPayrollView('rekap');
+        }
     }
 }
 
@@ -119,7 +130,7 @@ function switchTab(groupName, contentId, clickedButton) {
 
     // 1. MENCEGAH SCROLLING KE ATAS
     if (event) {
-        event.preventDefault(); 
+        event.preventDefault();
     }
 
     // 1. Sembunyikan semua konten tab dalam grup yang sama
@@ -393,4 +404,23 @@ function generatePayroll() {
 function downloadPayslip(employeeName) {
     console.log(`[PAYSLIP] Membuat slip gaji PDF untuk ${employeeName}...`);
     alert(`Slip Gaji ${employeeName} berhasil dibuat (Simulasi Download PDF).`);
+}
+
+// Fungsi untuk mengatur tampilan halaman Payroll
+function setPayrollView(view, month = null) {
+    const rekapSection = document.getElementById('payroll-rekap-section');
+    const detailSection = document.getElementById('payroll-detail-section');
+
+    if (view === 'rekap') {
+        // Tampilkan rekap, sembunyikan detail
+        rekapSection.style.display = 'block';
+        detailSection.style.display = 'none';
+        renderPayrollRekap(); // Refresh data rekap
+    } else if (view === 'detail' && month) {
+        // Tampilkan detail, sembunyikan rekap
+        rekapSection.style.display = 'none';
+        detailSection.style.display = 'block';
+        // Panggil fungsi rendering detail dengan data bulan
+        renderPayrollDetail(month);
+    }
 }

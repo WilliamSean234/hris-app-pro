@@ -18,20 +18,20 @@ function updateDashboardMetrics() {
     // MENCARI ID BARU: 'metric-absensi-rate'
     const absenceRateEl = document.getElementById('metric-absensi-rate');
     // Angka 0.8% dari gambar
-    if (absenceRateEl) absenceRateEl.textContent = '0.8%'; 
+    if (absenceRateEl) absenceRateEl.textContent = '0.8%';
 
     // 3. Pengajuan Cuti Menunggu
     const pendingLeave = leaveRequests.filter(r => r.status.includes('Menunggu')).length;
     // MENCARI ID BARU: 'metric-pending-leave'
     const pendingLeaveEl = document.getElementById('metric-pending-leave');
     if (pendingLeaveEl) pendingLeaveEl.textContent = pendingLeave;
-    
+
     // 4. Kontrak Berakhir (Simulasi)
     const expiringContracts = employees.filter(e => e.contractStatus === 'Kontrak' && isContractExpiring(e.joinDate)).length;
     // MENCARI ID BARU: 'metric-contract-ending'
     const contractEndingEl = document.getElementById('metric-contract-ending');
     // Angka 0 sesuai gambar
-    if (contractEndingEl) contractEndingEl.textContent = '0'; 
+    if (contractEndingEl) contractEndingEl.textContent = '0';
 
     // Render Peringatan
     renderSystemWarnings();
@@ -39,7 +39,7 @@ function updateDashboardMetrics() {
 
 function renderSystemWarnings() {
     const warningList = document.getElementById('system-warnings');
-    if (!warningList) return; 
+    if (!warningList) return;
 
     warningList.innerHTML = ''; // Clear existing warnings
 
@@ -52,7 +52,7 @@ function renderSystemWarnings() {
     // Peringatan 2: Karyawan Terlambat 
     const lateEmployees = attendanceData.filter(d => d.status.includes('Terlambat')).length;
     if (lateEmployees > 0) {
-         warningList.innerHTML += `<li><i class="fas fa-exclamation-triangle text-warning"></i> <strong>${lateEmployees} karyawan</strong> terlambat clock-in hari ini.</li>`;
+        warningList.innerHTML += `<li><i class="fas fa-exclamation-triangle text-warning"></i> <strong>${lateEmployees} karyawan</strong> terlambat clock-in hari ini.</li>`;
     }
 
     // Peringatan 3: Kebijakan Cuti 
@@ -329,29 +329,134 @@ function renderReviewContent(record, recordType, reviewContentElement) {
 
 // --- 4. PAYROLL FUNCTIONS ---
 
+// Fungsi untuk membuat baris tabel Payroll Rekap
+function createPayrollRekapRow(data) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>${data.month}</td>
+        <td>${data.totalEmployees}</td>
+        <td>${data.netPayroll}</td>
+        <td>
+            <span class="status-badge ${data.status.includes('Selesai') ? 'status-success' : 'status-draft'}">
+                ${data.status}
+            </span>
+        </td>
+        <td>
+            <button class="btn btn-sm btn-detail" onclick="setPayrollView('detail', '${data.month}')">
+                <i class="fas fa-search"></i> Detail
+            </button>
+        </td>
+    `;
+    return tr;
+}
+
+// Fungsi yang dipanggil di initializePage
 function renderPayrollRekap() {
-    const tableBody = document.getElementById('payroll-rekap-body');
+    // ID tabel harus sinkron dengan payroll.html
+    const tableBody = document.querySelector('#payroll-rekap-table tbody');
+
     if (!tableBody) return;
 
-    tableBody.innerHTML = '';
-    payrollRekap.forEach(rekap => {
-        const statusClass = rekap.status.includes('Final') ? 'status-approved' : 'status-pending';
+    tableBody.innerHTML = ''; // Kosongkan data lama
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${rekap.month}</td>
-            <td>${rekap.totalEmployees} Karyawan</td>
-            <td><strong>${rekap.netPayroll}</strong></td>
-            <td><span class="status-badge ${statusClass}">${rekap.status}</span></td>
-            <td>
-                <button class="btn btn-info btn-sm" onclick="downloadPayslip('Rekap ${rekap.month}')">
-                    <i class="fas fa-download"></i> Download
-                </button>
-                ${rekap.status.includes('Final') ? '' : `<button class="btn btn-primary btn-sm" onclick="generatePayroll()">
-                    <i class="fas fa-calculator"></i> Proses
-                </button>`}
-            </td>
-        `;
+    // Gunakan array payrollRekap dari data.js
+    payrollRekap.forEach(rekap => {
+        const row = createPayrollRekapRow(rekap);
         tableBody.appendChild(row);
     });
 }
+
+// Fungsi ini akan dipanggil di halaman detail payroll
+function renderPayrollDetail(month) {
+    const detailDiv = document.getElementById('payroll-detail-content');
+    if (!detailDiv) return;
+
+    // Header
+    let html = `<h3>Detail Payroll Bulan ${month}</h3><hr>`;
+
+    // Tabel Simulasi Perhitungan
+    html += `
+        <table class="data-table mt-15" id="payroll-detail-table">
+            <thead>
+                <tr>
+                    <th>Karyawan</th>
+                    <th>Gaji Pokok</th>
+                    <th>Tunjangan</th>
+                    <th>Lembur (Simulasi)</th>
+                    <th>Potongan PPh 21</th>
+                    <th>Potongan BPJS</th>
+                    <th>Net Salary (Estimasi)</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    // Looping untuk menghitung gaji setiap karyawan
+    employees.forEach(emp => {
+        const base = emp.payrollDetail.baseSalary;
+        const allowance = emp.payrollDetail.fixedAllowance;
+        const overtime = 500000; // Simulasi lembur tetap
+        const gross = base + allowance + overtime;
+
+        const bpjsTotal = emp.payrollDetail.bpjsTk + emp.payrollDetail.bpjsKs;
+        const pph21 = gross * emp.payrollDetail.pph21Rate;
+
+        const netSalary = gross - bpjsTotal - pph21;
+
+        // Helper untuk format Rupiah
+        const formatRupiah = (num) => `Rp ${num.toLocaleString('id-ID')}`;
+
+        html += `
+            <tr>
+                <td>${emp.name}</td>
+                <td>${formatRupiah(base)}</td>
+                <td>${formatRupiah(allowance)}</td>
+                <td>${formatRupiah(overtime)}</td>
+                <td>(${formatRupiah(pph21)})</td>
+                <td>(${formatRupiah(bpjsTotal)})</td>
+                <td><strong>${formatRupiah(netSalary)}</strong></td>
+            </tr>
+        `;
+    });
+
+    html += `</tbody></table>`;
+
+    // Kontrol Output
+    html += `
+        <h4 class="mt-30">Output Penting Payroll</h4>
+        <div class="payroll-output-controls">
+            <button class="btn btn-success"><i class="fas fa-file-pdf"></i> Generate Slip Gaji PDF</button>
+            <button class="btn btn-warning"><i class="fas fa-file-excel"></i> File Transfer Bank (Simulasi)</button>
+            <button class="btn btn-info"><i class="fas fa-file-invoice"></i> File BPJS dan Pajak</button>
+        </div>
+    `;
+
+    detailDiv.innerHTML = html;
+}
+
+// function renderPayrollRekap() {
+//     const tableBody = document.getElementById('payroll-rekap-body');
+//     if (!tableBody) return;
+
+//     tableBody.innerHTML = '';
+//     payrollRekap.forEach(rekap => {
+//         const statusClass = rekap.status.includes('Final') ? 'status-approved' : 'status-pending';
+
+//         const row = document.createElement('tr');
+//         row.innerHTML = `
+//             <td>${rekap.month}</td>
+//             <td>${rekap.totalEmployees} Karyawan</td>
+//             <td><strong>${rekap.netPayroll}</strong></td>
+//             <td><span class="status-badge ${statusClass}">${rekap.status}</span></td>
+//             <td>
+//                 <button class="btn btn-info btn-sm" onclick="downloadPayslip('Rekap ${rekap.month}')">
+//                     <i class="fas fa-download"></i> Download
+//                 </button>
+//                 ${rekap.status.includes('Final') ? '' : `<button class="btn btn-primary btn-sm" onclick="generatePayroll()">
+//                     <i class="fas fa-calculator"></i> Proses
+//                 </button>`}
+//             </td>
+//         `;
+//         tableBody.appendChild(row);
+//     });
+// }

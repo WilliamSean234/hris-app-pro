@@ -1,32 +1,45 @@
-<h2 class="section-title">Payroll Simulation & Calculation</h2>
+<h2 class="section-title">Payroll Simulation</h2>
 
-<section class="card wide-card">
-    <h3>Simulasi Gaji Bulanan (November 2025)</h3>
-    <p class="text-info">Perhitungan gaji sudah termasuk potongan otomatis dari **Data Absensi & Lembur**.</p>
+<div id="payroll-rekap-section">
+    <div class="card mb-30">
+        <h4>Rekapitulasi Proses Gaji</h4>
 
-    <div class="controls-container">
-        <button class="btn btn-primary" onclick="generatePayroll()">
-            <i class="fas fa-calculator"></i> Generate Payroll
-        </button>
+        <div class="controls-container">
+            <div class="control-group">
+                <label for="payroll-period">Periode:</label>
+                <select id="payroll-period">
+                    <option>November 2025</option>
+                    <option>Oktober 2025</option>
+                </select>
+            </div>
+            <button class="btn btn-primary"><i class="fas fa-calculator"></i> Mulai Simulasi Payroll</button>
+        </div>
 
-        <div class="control-group">
-            <label for="month-filter">Filter Bulan/Tahun:</label>
-            <input type="month" id="month-filter" value="2025-11">
+        <table id="payroll-rekap-table" class="data-table mt-15">
+            <thead>
+                <tr>
+                    <th>Periode</th>
+                    <th>Total Karyawan</th>
+                    <th>Total Net Payroll</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="payroll-detail-section" style="display: none;">
+
+    <button class="btn btn-secondary mb-15" onclick="loadPage('payroll')">
+        <i class="fas fa-arrow-left"></i> Kembali ke Rekap
+    </button>
+
+    <div class="card wide-card">
+        <div id="payroll-detail-content">
+            <p class="text-center text-muted">Memuat Detail Perhitungan...</p>
         </div>
     </div>
-
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Karyawan</th>
-                <th>Gaji Pokok</th>
-                <th>Tunj. Hadir</th>
-                <th>Pot. Absen/Telat</th>
-                <th>Total Gaji Bersih</th>
-                <th>Slip Gaji</th>
-            </tr>
-        </thead>
-        <tbody id="payroll-table-body">
-        </tbody>
-    </table>
-</section>
+</div>

@@ -39,7 +39,15 @@ const employees = [
             { name: "KTP", uri: "#" },
             { name: "Kontrak Kerja (Terbaru)", uri: "#" },
             { name: "Ijazah S1", uri: "#" }
-        ]
+        ],
+        // Detail Payroll
+        payrollDetail: {
+            baseSalary: 10000000,
+            fixedAllowance: 3000000,
+            bpjsTk: 200000,
+            bpjsKs: 150000,
+            pph21Rate: 0.05 // Simulasi PPh 21 5%
+        },
     },
     {
         nik: "2021005",
@@ -75,6 +83,15 @@ const employees = [
             { name: "KTP", uri: "#" },
             { name: "Kontrak Kerja (Tahun Ini)", uri: "#" }
         ]
+        ,
+        // Detail Payroll
+        payrollDetail: {
+            baseSalary: 10000000,
+            fixedAllowance: 3000000,
+            bpjsTk: 200000,
+            bpjsKs: 150000,
+            pph21Rate: 0.05 // Simulasi PPh 21 5%
+        },
     },
     {
         nik: "2022010",
@@ -109,7 +126,15 @@ const employees = [
         documents: [
             { name: "KTP", uri: "#" },
             { name: "Sertifikat Keahlian", uri: "#" }
-        ]
+        ],
+        // Detail Payroll
+        payrollDetail: {
+            baseSalary: 10000000,
+            fixedAllowance: 3000000,
+            bpjsTk: 200000,
+            bpjsKs: 150000,
+            pph21Rate: 0.05 // Simulasi PPh 21 5%
+        },
     },
     {
         nik: "2023015",
@@ -145,6 +170,15 @@ const employees = [
             { name: "KTP", uri: "#" },
             { name: "Sertifikat HR", uri: "#" }
         ]
+        ,
+        // Detail Payroll
+        payrollDetail: {
+            baseSalary: 10000000,
+            fixedAllowance: 3000000,
+            bpjsTk: 200000,
+            bpjsKs: 150000,
+            pph21Rate: 0.05 // Simulasi PPh 21 5%
+        },
     }
 ];
 
