@@ -442,16 +442,6 @@ function renderPayrollDetail(month) {
 
     html += `</tbody></table>`;
 
-    // Kontrol Output
-    html += `
-        <h4 class="mt-30">Output Penting Payroll</h4>
-        <div class="payroll-output-controls">
-            <button class="btn btn-success" onclick="simulateDownload('Slip Gaji PDF', '${month}')"><i class="fas fa-file-pdf"></i> Generate Slip Gaji PDF</button>
-            <button class="btn btn-warning" onclick="simulateDownload('File Transfer Bank', '${month}')"><i class="fas fa-file-excel"></i> File Transfer Bank</button>
-            <button class="btn btn-info" onclick="simulateDownload('File BPJS dan Pajak', '${month}')"><i class="fas fa-file-invoice"></i> File BPJS/Pajak</button>
-        </div>
-    `;
-
     detailDiv.innerHTML = html;
 }
 
