@@ -352,22 +352,31 @@ function createPayrollRekapRow(data) {
 }
 
 // Fungsi yang dipanggil di initializePage
+// Fungsi ini mengambil data dari payrollRekap dan menampilkan tabel rekapitulasi.
 function renderPayrollRekap() {
     // ID tabel harus sinkron dengan payroll.html
     const tableBody = document.querySelector('#payroll-rekap-table tbody');
 
-    if (!tableBody) return;
+    if (!tableBody) {
+        console.error("Error: Element #payroll-rekap-table tbody tidak ditemukan.");
+        return; // Hentikan fungsi jika elemen tidak ada
+    }
 
     tableBody.innerHTML = ''; // Kosongkan data lama
 
-    // Gunakan array payrollRekap dari data.js
-    payrollRekap.forEach(rekap => {
-        const row = createPayrollRekapRow(rekap);
-        tableBody.appendChild(row);
-    });
+    // Gunakan data global payrollRekap dari data.js
+    if (typeof payrollRekap !== 'undefined') {
+        payrollRekap.forEach(data => {
+            const row = createPayrollRekapRow(data);
+            tableBody.appendChild(row);
+        });
+    } else {
+        console.error("Error: Variabel payrollRekap belum didefinisikan di data.js.");
+    }
 }
 
 // Fungsi ini akan dipanggil di halaman detail payroll
+// Fungsi ini menampilkan perhitungan rinci (Gaji, Lembur, Potongan PPh 21/BPJS) dari data.js.
 function renderPayrollDetail(month) {
     const detailDiv = document.getElementById('payroll-detail-content');
     if (!detailDiv) return;
@@ -403,7 +412,11 @@ function renderPayrollDetail(month) {
     employees.forEach(emp => {
         const base = emp.payrollDetail.baseSalary;
         const allowance = emp.payrollDetail.fixedAllowance;
-        const overtime = 500000; // Simulasi lembur tetap
+
+        // SIMULASI: Tambahkan Komponen Lain (Lembur)
+        const overtime = (emp.department === 'IT') ? 500000 : 250000; // IT dapat lembur lebih besar
+        // const overtime = 500000; // Simulasi lembur tetap
+
         const gross = base + allowance + overtime;
 
         const bpjsTotal = emp.payrollDetail.bpjsTk + emp.payrollDetail.bpjsKs;
@@ -420,8 +433,8 @@ function renderPayrollDetail(month) {
                 <td>${formatRupiah(base)}</td>
                 <td>${formatRupiah(allowance)}</td>
                 <td>${formatRupiah(overtime)}</td>
-                <td>(${formatRupiah(pph21)})</td>
-                <td>(${formatRupiah(bpjsTotal)})</td>
+                <td class="text-danger">(${formatRupiah(pph21)})</td>
+                <td class="text-danger">(${formatRupiah(bpjsTotal)})</td>
                 <td><strong>${formatRupiah(netSalary)}</strong></td>
             </tr>
         `;
@@ -433,9 +446,9 @@ function renderPayrollDetail(month) {
     html += `
         <h4 class="mt-30">Output Penting Payroll</h4>
         <div class="payroll-output-controls">
-            <button class="btn btn-success"><i class="fas fa-file-pdf"></i> Generate Slip Gaji PDF</button>
-            <button class="btn btn-warning"><i class="fas fa-file-excel"></i> File Transfer Bank (Simulasi)</button>
-            <button class="btn btn-info"><i class="fas fa-file-invoice"></i> File BPJS dan Pajak</button>
+            <button class="btn btn-success" onclick="simulateDownload('Slip Gaji PDF', '${month}')"><i class="fas fa-file-pdf"></i> Generate Slip Gaji PDF</button>
+            <button class="btn btn-warning" onclick="simulateDownload('File Transfer Bank', '${month}')"><i class="fas fa-file-excel"></i> File Transfer Bank</button>
+            <button class="btn btn-info" onclick="simulateDownload('File BPJS dan Pajak', '${month}')"><i class="fas fa-file-invoice"></i> File BPJS/Pajak</button>
         </div>
     `;
 

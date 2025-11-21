@@ -3,7 +3,9 @@
 let currentEmployeeIndex = null;
 let currentEmployeeDetail = null; // Menyimpan data karyawan yang sedang dilihat
 let currentApprovalRecord = null; // Menyimpan data approval yang sedang ditinjau
-let pageLoadContext = {}; // Konteks untuk memuat data saat pindah halaman (Detail Karyawan)
+
+// let pageLoadContext = {}; // Konteks untuk memuat data saat pindah halaman (Detail Karyawan)
+const pageLoadContext = { employeeIndex: undefined, month: null, view: null };
 
 // --- PAGE LOADER ---
 function loadPage(pageId) {
@@ -110,24 +112,41 @@ function initializePage(pageId) {
             // Panggil fungsi switchTab/changeAttendanceTab dengan parameter konten pertama
             switchTab('leave', 'leave-requests-content', defaultButton);
         }
-    } else if (pageId === 'payroll') {
+    }
+    // 5. Logic Payroll Simulation (FINAL)
+
+    // else if (pageId === 'payroll') {
+    //     let viewToLoad = 'rekap';
+    //     renderPayrollRekap();
+
+    //     // Cek jika ada konteks untuk menampilkan detail payroll
+    //     if (pageLoadContext.month) {
+    //         renderPayrollDetail(pageLoadContext.month);
+    //     }
+    //     else if (pageLoadContext && pageLoadContext.view) {
+    //         viewToLoad = pageLoadContext.view;
+    //     }
+    //     else if (pageLoadContext && pageLoadContext.month) {
+    //         setPayrollView('detail', pageLoadContext.month);
+    //     } else {
+    //         // Default: Tampilkan rekap
+    //         setPayrollView('rekap');
+    //     }
+
+    //     setPayrollView(viewToLoad, pageLoadContext.month);
+    // }
+
+    else if (pageId === 'payroll') {
+        // Tentukan tampilan default: Rekap, Detail, atau Disbursement
         let viewToLoad = 'rekap';
-        renderPayrollRekap();
-
-        // Cek jika ada konteks untuk menampilkan detail payroll
-        if (pageLoadContext.month) {
-            renderPayrollDetail(pageLoadContext.month);
-        }
-        else if (pageLoadContext && pageLoadContext.view) {
+        if (pageLoadContext && pageLoadContext.view) {
             viewToLoad = pageLoadContext.view;
-        }
-        else if (pageLoadContext && pageLoadContext.month) {
-            setPayrollView('detail', pageLoadContext.month);
-        } else {
-            // Default: Tampilkan rekap
-            setPayrollView('rekap');
+        } else if (pageLoadContext && pageLoadContext.month) {
+            // Jika ada bulan di konteks tapi view tidak dispesifikasikan, asumsikan 'detail'
+            viewToLoad = 'detail';
         }
 
+        // Panggil fungsi kontrol tampilan utama
         setPayrollView(viewToLoad, pageLoadContext.month);
     }
 }

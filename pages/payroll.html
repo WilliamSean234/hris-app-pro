@@ -1,34 +1,77 @@
 <h2 class="section-title">Payroll Simulation</h2>
 
+<!-- Navigasi Tab Payroll: Rekap & Perhitungan vs. Disbursement -->
 <div class="tabs-nav mb-20">
+    <!-- Tombol 1: Default aktif saat dimuat -->
     <button class="tab-button active-tab" onclick="setPayrollView('rekap')">Rekap & Perhitungan</button>
+    <!-- Tombol 2: Untuk melihat proses transfer gaji -->
     <button class="tab-button" onclick="setPayrollView('disbursement')">Disbursement (Transfer Gaji)</button>
 </div>
 
+<!-- =========== 1. BAGIAN REKAP & PERHITUNGAN (TAMPILAN UTAMA) =========== -->
 <div id="payroll-rekap-section" style="display: block;">
     <div class="card mb-30">
         <h4>Rekapitulasi Proses Gaji</h4>
+
+        <!-- Controls untuk Periode dan Aksi -->
+        <div class="controls-container">
+            <div class="control-group">
+                <label for="payroll-period">Periode:</label>
+                <select id="payroll-period" class="form-control">
+                    <option value="November 2025">November 2025</option>
+                    <option value="Oktober 2025">Oktober 2025</option>
+                </select>
+            </div>
+            <!-- Tombol Simulasi: Panggil fungsi simulasi perhitungan gaji -->
+            <button class="btn btn-primary"><i class="fas fa-calculator"></i> Mulai Simulasi Payroll</button>
+        </div>
+
+        <!-- Tabel Rekapitulasi (Diisi oleh renderPayrollRekap() di render.js) -->
+        <table id="payroll-rekap-table" class="data-table mt-15">
+            <thead>
+                <tr>
+                    <th>Periode</th>
+                    <th>Total Karyawan</th>
+                    <th>Total Net Payroll</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data akan di-render di sini oleh JavaScript -->
+            </tbody>
+        </table>
+
     </div>
+    <!-- Opsional: Tambahan info di bawah tabel -->
+    <p class="text-info-small mt-15">Klik "Detail" pada tabel rekap untuk melihat simulasi perhitungan gaji rinci (PPh
+        21, BPJS, dll.).</p>
 </div>
 
+<!-- =========== 2. BAGIAN DETAIL PERHITUNGAN (TAMPILAN SUB-MENU) =========== -->
 <div id="payroll-detail-section" style="display: none;">
 
+    <!-- Tombol Kembali ke Tampilan Rekap -->
     <button class="btn btn-secondary mb-15" onclick="setPayrollView('rekap')">
         <i class="fas fa-arrow-left"></i> Kembali ke Rekap
     </button>
 
     <div class="card wide-card">
+        <!-- Konten Detail Simulasi PPh 21, BPJS, Net Salary dimuat di sini oleh renderPayrollDetail() -->
         <div id="payroll-detail-content">
+            <p class="text-center text-muted">Memuat Detail Perhitungan...</p>
         </div>
     </div>
 </div>
 
+<!-- =========== 3. BAGIAN PAYROLL DISBURSEMENT (TRANSFER GAJI) =========== -->
 <div id="payroll-disbursement-section" style="display: none;">
     <div class="card wide-card">
         <h4>Payroll Disbursement (Transfer Gaji Otomatis)</h4>
         <p class="text-info-small">Proses transfer gaji massal dengan Approval berlapis (Maker → Checker → Approver).
         </p>
 
+        <!-- Tabel Disbursement (Diisi oleh renderDisbursementTable() di render.js) -->
         <table id="disbursement-table" class="data-table mt-15">
             <thead>
                 <tr>
@@ -41,9 +84,11 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Data disbursement akan di-render di sini oleh JavaScript -->
             </tbody>
         </table>
 
+        <!-- Tombol Output Disbursement -->
         <div class="payroll-output-controls mt-30">
             <button class="btn btn-sm btn-outline-info" onclick="simulateDownload('Bank Mapping Report', 'All')"><i
                     class="fas fa-map-marked-alt"></i> Bank Mapping Report</button>
