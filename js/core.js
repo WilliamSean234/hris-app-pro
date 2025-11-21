@@ -111,11 +111,15 @@ function initializePage(pageId) {
             switchTab('leave', 'leave-requests-content', defaultButton);
         }
     } else if (pageId === 'payroll') {
+        let viewToLoad = 'rekap';
         renderPayrollRekap();
 
         // Cek jika ada konteks untuk menampilkan detail payroll
         if (pageLoadContext.month) {
             renderPayrollDetail(pageLoadContext.month);
+        }
+        else if (pageLoadContext && pageLoadContext.view) {
+            viewToLoad = pageLoadContext.view;
         }
         else if (pageLoadContext && pageLoadContext.month) {
             setPayrollView('detail', pageLoadContext.month);
@@ -123,6 +127,8 @@ function initializePage(pageId) {
             // Default: Tampilkan rekap
             setPayrollView('rekap');
         }
+
+        setPayrollView(viewToLoad, pageLoadContext.month);
     }
 }
 
@@ -407,20 +413,80 @@ function downloadPayslip(employeeName) {
 }
 
 // Fungsi untuk mengatur tampilan halaman Payroll
+// function setPayrollView(view, month = null) {
+//     const rekapSection = document.getElementById('payroll-rekap-section');
+//     const detailSection = document.getElementById('payroll-detail-section'); const disbursementSection = document.getElementById('payroll-disbursement-section');
+
+//     if (view === 'rekap') {
+//         // Tampilkan rekap, sembunyikan detail
+//         rekapSection.style.display = 'block';
+//         detailSection.style.display = 'none';
+//         renderPayrollRekap(); // Refresh data rekap
+//     } else if (view === 'detail' && month) {
+//         // Tampilkan detail, sembunyikan rekap
+//         rekapSection.style.display = 'none';
+//         detailSection.style.display = 'block';
+//         // Panggil fungsi rendering detail dengan data bulan
+//         renderPayrollDetail(month);
+//     }
+// }
 function setPayrollView(view, month = null) {
     const rekapSection = document.getElementById('payroll-rekap-section');
     const detailSection = document.getElementById('payroll-detail-section');
+    const disbursementSection = document.getElementById('payroll-disbursement-section');
+
+    // Ambil semua tombol tab Payroll untuk mengontrol status aktif
+    const allTabButtons = document.querySelectorAll('.tabs-nav .tab-button');
+
+    // --- 1. SEMBUNYIKAN SEMUA KONTEN ---
+
+    // Sembunyikan semua section (Pastikan ID-nya ada di payroll.html)
+    if (rekapSection) rekapSection.style.display = 'none';
+    if (detailSection) detailSection.style.display = 'none';
+    if (disbursementSection) disbursementSection.style.display = 'none';
+
+    // Hapus status aktif dari semua tombol tab
+    allTabButtons.forEach(button => {
+        button.classList.remove('active-tab');
+    });
+
+    // --- 2. TAMPILKAN KONTEN DAN ATUR STATUS AKTIF ---
 
     if (view === 'rekap') {
-        // Tampilkan rekap, sembunyikan detail
-        rekapSection.style.display = 'block';
-        detailSection.style.display = 'none';
-        renderPayrollRekap(); // Refresh data rekap
+        if (rekapSection) rekapSection.style.display = 'block';
+        renderPayrollRekap(); // Fungsi dari render.js
+
+        // Aktifkan tombol 'Rekap & Perhitungan' (Tombol pertama)
+        const rekapButton = document.querySelector('.tabs-nav button:nth-child(1)');
+        if (rekapButton) rekapButton.classList.add('active-tab');
+
     } else if (view === 'detail' && month) {
-        // Tampilkan detail, sembunyikan rekap
-        rekapSection.style.display = 'none';
-        detailSection.style.display = 'block';
-        // Panggil fungsi rendering detail dengan data bulan
-        renderPayrollDetail(month);
+        if (detailSection) detailSection.style.display = 'block';
+        renderPayrollDetail(month); // Fungsi dari render.js
+
+        // Tampilan detail adalah sub-view dari 'Rekap & Perhitungan', jadi tombol itu tetap aktif.
+        const rekapButton = document.querySelector('.tabs-nav button:nth-child(1)');
+        if (rekapButton) rekapButton.classList.add('active-tab');
+
+    } else if (view === 'disbursement') {
+        if (disbursementSection) disbursementSection.style.display = 'block';
+        renderDisbursementTable(); // Fungsi dari render.js
+
+        // Aktifkan tombol 'Disbursement (Transfer Gaji)' (Tombol kedua)
+        const disbursementButton = document.querySelector('.tabs-nav button:nth-child(2)');
+        if (disbursementButton) disbursementButton.classList.add('active-tab');
     }
+}
+
+// Fungsi Simulasi untuk Output Penting Payroll
+function simulateDownload(fileType, month) {
+    alert(`Simulasi: ${fileType} untuk periode ${month} siap diunduh!`);
+}
+
+// Fungsi Simulasi untuk Proses Disbursement (Transfer)
+function disbursePayroll(month) {
+    alert(`Simulasi: Proses Batch Disbursement untuk ${month} dimulai. Status berubah menjadi 'Menunggu Checker'.`);
+    // Logic nyata akan melibatkan API bank dan approval berlapis.
+    // Di sini kita hanya akan memuat ulang tampilan disbursement.
+    loadPage('payroll', { view: 'disbursement' });
 }

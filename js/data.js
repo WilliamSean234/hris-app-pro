@@ -182,6 +182,11 @@ const employees = [
     }
 ];
 
+const disbursementRecords = [
+    { id: 501, month: "November 2025", totalAmount: "Rp 38.000.000", status: "Selesai", maker: "Rani Dewi", approver: "Joko Susilo" },
+    { id: 502, month: "Desember 2025", totalAmount: "Rp 0", status: "Draft", maker: "Rani Dewi", approver: "-" }
+];
+
 // --- 2. DATA ABSENSI HARI INI (TIME & ATTENDANCE) ---
 const attendanceData = [
     { name: "Budi Santoso", shift: "Pagi A", clockIn: "08:00", clockOut: "17:00", duration: "9 Jam", status: "Hadir Tepat Waktu" },

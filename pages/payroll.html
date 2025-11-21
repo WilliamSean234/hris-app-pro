@@ -1,45 +1,55 @@
 <h2 class="section-title">Payroll Simulation</h2>
 
-<div id="payroll-rekap-section">
+<div class="tabs-nav mb-20">
+    <button class="tab-button active-tab" onclick="setPayrollView('rekap')">Rekap & Perhitungan</button>
+    <button class="tab-button" onclick="setPayrollView('disbursement')">Disbursement (Transfer Gaji)</button>
+</div>
+
+<div id="payroll-rekap-section" style="display: block;">
     <div class="card mb-30">
         <h4>Rekapitulasi Proses Gaji</h4>
+    </div>
+</div>
 
-        <div class="controls-container">
-            <div class="control-group">
-                <label for="payroll-period">Periode:</label>
-                <select id="payroll-period">
-                    <option>November 2025</option>
-                    <option>Oktober 2025</option>
-                </select>
-            </div>
-            <button class="btn btn-primary"><i class="fas fa-calculator"></i> Mulai Simulasi Payroll</button>
+<div id="payroll-detail-section" style="display: none;">
+
+    <button class="btn btn-secondary mb-15" onclick="setPayrollView('rekap')">
+        <i class="fas fa-arrow-left"></i> Kembali ke Rekap
+    </button>
+
+    <div class="card wide-card">
+        <div id="payroll-detail-content">
         </div>
+    </div>
+</div>
 
-        <table id="payroll-rekap-table" class="data-table mt-15">
+<div id="payroll-disbursement-section" style="display: none;">
+    <div class="card wide-card">
+        <h4>Payroll Disbursement (Transfer Gaji Otomatis)</h4>
+        <p class="text-info-small">Proses transfer gaji massal dengan Approval berlapis (Maker → Checker → Approver).
+        </p>
+
+        <table id="disbursement-table" class="data-table mt-15">
             <thead>
                 <tr>
                     <th>Periode</th>
-                    <th>Total Karyawan</th>
-                    <th>Total Net Payroll</th>
-                    <th>Status</th>
+                    <th>Total Transfer</th>
+                    <th>Maker</th>
+                    <th>Approver</th>
+                    <th>Status Tracking</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
-    </div>
-</div>
 
-<div id="payroll-detail-section" style="display: none;">
-
-    <button class="btn btn-secondary mb-15" onclick="loadPage('payroll')">
-        <i class="fas fa-arrow-left"></i> Kembali ke Rekap
-    </button>
-
-    <div class="card wide-card">
-        <div id="payroll-detail-content">
-            <p class="text-center text-muted">Memuat Detail Perhitungan...</p>
+        <div class="payroll-output-controls mt-30">
+            <button class="btn btn-sm btn-outline-info" onclick="simulateDownload('Bank Mapping Report', 'All')"><i
+                    class="fas fa-map-marked-alt"></i> Bank Mapping Report</button>
+            <button class="btn btn-sm btn-outline-info"
+                onclick="simulateDownload('Bank File Format (CVS)', 'November 2025')"><i class="fas fa-file-csv"></i>
+                Generate Bank File</button>
         </div>
     </div>
 </div>

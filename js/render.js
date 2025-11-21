@@ -340,6 +340,7 @@ function createPayrollRekapRow(data) {
             <span class="status-badge ${data.status.includes('Selesai') ? 'status-success' : 'status-draft'}">
                 ${data.status}
             </span>
+            </span>
         </td>
         <td>
             <button class="btn btn-sm btn-detail" onclick="setPayrollView('detail', '${data.month}')">
@@ -389,7 +390,14 @@ function renderPayrollDetail(month) {
                 </tr>
             </thead>
             <tbody>
+            <h4 class="mt-30">Output Penting Payroll</h4>
+            <div class="payroll-output-controls">
+                <button class="btn btn-success" onclick="simulateDownload('Slip Gaji PDF', '${month}')"><i class="fas fa-file-pdf"></i> Generate Slip Gaji PDF</button>
+                <button class="btn btn-warning" onclick="simulateDownload('File Transfer Bank', '${month}')"><i class="fas fa-file-excel"></i> File Transfer Bank</button>
+                <button class="btn btn-info" onclick="simulateDownload('File BPJS dan Pajak', '${month}')"><i class="fas fa-file-invoice"></i> File BPJS/Pajak</button>
+            </div>
     `;
+
 
     // Looping untuk menghitung gaji setiap karyawan
     employees.forEach(emp => {
@@ -404,7 +412,7 @@ function renderPayrollDetail(month) {
         const netSalary = gross - bpjsTotal - pph21;
 
         // Helper untuk format Rupiah
-        const formatRupiah = (num) => `Rp ${num.toLocaleString('id-ID')}`;
+        const formatRupiah = (num) => `Rp ${Math.floor(num).toLocaleString('id-ID')}`;
 
         html += `
             <tr>
@@ -432,6 +440,33 @@ function renderPayrollDetail(month) {
     `;
 
     detailDiv.innerHTML = html;
+}
+
+function renderDisbursementTable() {
+    const tableBody = document.querySelector('#disbursement-table tbody');
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+
+    disbursementRecords.forEach(record => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${record.month}</td>
+            <td>${record.totalAmount}</td>
+            <td>${record.maker}</td>
+            <td>${record.approver}</td>
+            <td>
+                <span class="status-badge status-${record.status.toLowerCase()}">
+                    ${record.status}
+                </span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-success" ${record.status === 'Draft' ? '' : 'disabled'} onclick="disbursePayroll('${record.month}')">
+                    <i class="fas fa-share-square"></i> Disburse
+                </button>
+            </td>
+        `;
+        tableBody.appendChild(tr);
+    });
 }
 
 // function renderPayrollRekap() {
