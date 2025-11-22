@@ -48,38 +48,6 @@ function loadPage(pageId) {
         });
 }
 
-// function initializePage(pageId) {
-//     if (pageId === 'dashboard') {
-//         updateDashboardMetrics(); 
-//     } else if (pageId === 'core-hr') {
-//         filterAndRenderEmployees(); // Render list saat halaman Core HR dimuat
-//     } else if (pageId === 'employee-detail') { // LOGIKA BARU UNTUK DETAIL
-//         if (pageLoadContext.employeeIndex !== undefined) {
-//             const index = pageLoadContext.employeeIndex;
-//             const emp = employees[index];
-//             currentEmployeeDetail = emp;
-//             currentEmployeeIndex = index;
-
-//             document.getElementById('detail-name').textContent = `Detail Karyawan: ${emp.name} (${emp.nik})`;
-//             changeDetailTab('personal'); // Muat tab Data Pribadi awal
-//         } else {
-//             document.getElementById('page-content').innerHTML = `<div class="card wide-card"><p class="text-danger">Error: ID Karyawan tidak ditemukan.</p><button class="btn btn-secondary" onclick="loadPage('core-hr')">Kembali ke Daftar</button></div>`;
-//         }
-//     }
-//     else if (pageId === 'attendance') {
-//         renderAttendanceRekap();
-//         renderLeaveRequests();
-//         renderLeaveBalances();
-//         renderApprovalRecords();
-//         // Set tab Approval sebagai default aktif
-//         changeAttendanceTab(null, 'approval'); 
-//     } else if (pageId === 'payroll') { 
-//         renderPayrollRekap(); 
-//     }
-// }
-
-// js/core.js - Perbaikan initializePage
-
 function initializePage(pageId) {
     // 1. Logic Dashboard & Overview
     if (pageId === 'dashboard') {

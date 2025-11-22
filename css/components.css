@@ -272,3 +272,183 @@
     border-radius: 5px;
     border-left: 3px solid var(--primary-color);
 }
+
+/* --- Tambahan Layout Form Khusus Event Kalender --- */
+
+.hris-event-form {
+    padding: 0 20px 20px 20px;
+    /* Sesuaikan padding agar terlihat seperti card content */
+}
+
+/* Mengganti section-title dengan h3 yang lebih kecil dan tidak ada aksen garis tebal */
+.section-subtitle {
+    font-size: 1.15rem;
+    /* Lebih besar dari label, lebih kecil dari h2 */
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-top: 15px;
+    margin-bottom: 15px;
+    /* Memberi aksen garis bawah tipis seperti di gambar */
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 5px;
+}
+
+.form-group-full {
+    margin-bottom: 20px;
+}
+
+/* Layout 2 Kolom Utama (50%/50%) */
+.form-row-2col {
+    display: flex;
+    gap: 30px;
+    /* Ruang lebih lebar antar kolom */
+}
+
+.form-row-2col>.form-group-col {
+    flex: 1;
+    margin-bottom: 10px;
+    /* Kurangi margin bawah agar lebih rapat */
+}
+
+/* Layout 4 Kolom di dalam Detail Waktu */
+.form-row-4col {
+    display: flex;
+    gap: 15px;
+    /* Gap lebih kecil untuk 4 kolom */
+}
+
+.form-row-4col>.form-group-col {
+    flex: 1;
+    margin-bottom: 10px;
+}
+
+/* Layout Nested 2 Kolom (digunakan di bagian Ulangi Sampai Tanggal) */
+.form-row-2col-nested {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row-2col-nested>.form-group-col {
+    flex: 1;
+}
+
+/* Gaya untuk opsi radio/checkbox grup (Horizontal seperti di gambar) */
+.recurrence-options-group {
+    display: flex;
+    flex-direction: row;
+    /* Pastikan horizontal */
+    align-items: flex-start;
+    gap: 25px;
+    margin-top: 5px;
+    padding-top: 10px;
+}
+
+.recurrence-options-group label {
+    font-weight: normal;
+    cursor: pointer;
+    white-space: nowrap;
+    /* Jangan memutus baris */
+}
+
+/* Penyesuaian label input agar sesuai dengan gambar */
+.form-group-col label {
+    font-weight: 600;
+}
+
+/* Tombol Aksi - memastikan alignment kanan */
+.form-actions-footer {
+    padding-top: 20px;
+    text-align: right;
+    border-top: 1px solid #e9ecef;
+    margin-top: 15px;
+}
+
+
+/* --- CSS Tambahan untuk Layout Form Multi-Kolom (HRIS Event Form) --- */
+
+.hris-event-form {
+    padding-top: 5px; 
+}
+
+/* Judul Sub-section */
+.section-subtitle {
+    font-size: 1.15rem; 
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e9ecef; 
+    padding-bottom: 5px;
+}
+
+/* Layout 2 Kolom Utama (50%/50%) */
+.form-row-2col {
+    display: flex;
+    gap: 30px; 
+}
+
+.form-row-2col > .form-group-col {
+    flex: 1; 
+}
+
+/* Layout 4 Kolom di dalam Detail Waktu */
+.form-row-4col {
+    display: flex;
+    gap: 15px; 
+}
+
+.form-row-4col > .form-group-col {
+    flex: 1;
+}
+
+/* Layout Nested 2 Kolom */
+.form-row-2col-nested {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row-2col-nested > .form-group-col {
+    flex: 1;
+}
+
+/* Gaya untuk opsi radio/checkbox grup */
+.recurrence-options-group {
+    display: flex;
+    flex-direction: row; 
+    align-items: flex-start;
+    gap: 25px;
+    margin-top: 5px;
+    padding-top: 10px;
+}
+
+.recurrence-options-group label {
+    font-weight: normal; 
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+/* --- TARGET SPESIFIK INPUT UNTUK MEMASTIKAN LEBAR PENUH DAN KONSISTENSI --- */
+.form-group-col input[type="text"],
+.form-group-col input[type="date"],
+.form-group-col input[type="time"],
+.form-group-col input[type="number"],
+.form-group-col select,
+/* Target input full width (Judul/Deskripsi Event) */
+.form-group-full input[type="text"], 
+.form-group-full select { 
+    width: 100%;
+    padding: 10px 12px;
+    box-sizing: border-box; /* Sangat penting untuk lebar 100% yang konsisten */
+    /* Input styling akan diwarisi dari base.css: border 1px solid #ccc, border-radius 4px */
+}
+
+.form-group-col label,
+.form-group-full label {
+    font-weight: 600; 
+    margin-bottom: 5px;
+}
+
+.form-actions-footer {
+    text-align: right;
+    margin-top: 10px; 
+}
