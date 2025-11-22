@@ -1,52 +1,148 @@
-/* css/base.css */
+/* css/base.css - Gaya Dasar Global HRIS PRO */
+
 :root {
-    /* ... (variabel warna lainnya) ... */
-    --primary-color: #007bff;
+    --primary-color: #007bff; /* Biru Google/Professional */
     --secondary-color: #6c757d;
     --success-color: #28a745;
-    --danger-color: #dc3545;
     --warning-color: #ffc107;
-    --info-color: #17a2b8;
-    --sidebar-width: 200px;
-    /* DIUBAH: Dari 250px menjadi 200px */
-    --sidebar-bg-color: #2c3e50;
-    /* Dipergelap sedikit agar kontras */
-    --card-bg-color: #ffffff;
-    --body-bg-color: #f4f7f6;
-    /* Warna latar belakang lebih terang */
+    --danger-color: #dc3545;
+    --bg-light: #f4f6f9;
+    --text-dark: #343a40;
+    --sidebar-bg: #2d353c; /* Dark Grey/Navy */
+    --sidebar-link-hover: #3e4852;
+    --shadow-light: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+    --border-radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: var(--body-bg-color);
-    color: #212529;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
 }
 
-/* Kunci utama layout dengan fixed sidebar */
-#content {
-    margin-left: var(--sidebar-width);
-    /* Sesuaikan dengan lebar baru */
-    padding: 25px 40px 25px 50px;
-    /* Padding ditingkatkan */
+/* Layout Utama */
+.app-container {
+    display: flex;
     min-height: 100vh;
-    box-sizing: border-box;
-
-    /* Mencegah scrollbar horizontal di tingkat konten utama  */
-    overflow-x: hidden;
 }
 
-.section-title {
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    transition: margin-left 0.3s;
+}
+
+h1 {
+    font-size: 1.75rem;
+    color: var(--text-dark);
     margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 5px;
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+/* Utilitas umum */
+.text-success { color: var(--success-color); }
+.text-danger { color: var(--danger-color); }
+.text-warning { color: var(--warning-color); }
+.hidden { display: none !important; }
+
+/* Struktur Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 600px;
+    box-shadow: var(--shadow-light);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--secondary-color);
+}
+
+.modal-body form div {
+    margin-bottom: 15px;
+}
+
+.modal-body label {
+    display: block;
+    margin-bottom: 5px;
     font-weight: 600;
-    color: #343a40;
 }
 
-.mt-20 {
-    margin-top: 20px;
+.modal-body input, .modal-body select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
 }
 
-.mt-30 {
-    margin-top: 30px;
+.modal-footer {
+    padding-top: 20px;
+    text-align: right;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    .main-content {
+        padding: 10px;
+    }
 }

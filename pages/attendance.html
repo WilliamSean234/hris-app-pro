@@ -1,114 +1,102 @@
-<h2 class="section-title">Time & Attendance Management</h2>
+<!-- pages/attendance.html -->
+<div class="attendance-page">
+    <h1><i class="fa-solid fa-clock-rotate-left"></i> Time & Attendance Management</h1>
 
-<div class="card mb-30">
-    <h4>Data Absensi Hari Ini (Simulasi)</h4>
-    <p class="text-info-small">Data kehadiran terintegrasi dengan data "Clock In/Out via GPS/Fingerprint" (Simulasi).
-    </p>
-    <button class="btn btn-info btn-sm mb-15"><i class="fas fa-cog"></i> Atur Shift Kerja</button>
+    <div class="card wide-card">
+        <div class="tabs-nav">
+            <button class="tab-button active-tab" onclick="switchTab(null, 'leave-requests-content', this)">Permintaan
+                Cuti & Izin</button>
+            <button class="tab-button" onclick="switchTab(null, 'attendance-rekap-content', this)">Rekap Absensi Hari
+                Ini</button>
+            <button class="tab-button" onclick="switchTab(null, 'leave-balances-content', this)">Saldo Cuti
+                Karyawan</button>
+        </div>
 
-    <table id="attendance-rekap-table" class="data-table">
-        <thead>
-            <tr>
-                <th>Karyawan</th>
-                <th>Shift</th>
-                <th>Clock In</th>
-                <th>Clock Out</th>
-                <th>Durasi Kerja</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-        </tbody>
-    </table>
-</div>
+        <!-- 1. Permintaan Cuti & Izin -->
+        <div id="leave-requests-content" class="tab-content active">
 
+            <div style="display: flex; gap: 20px;">
+                <!-- Pengajuan Cuti -->
+                <div style="flex: 1;">
+                    <h2>Pengajuan Cuti Menunggu Review</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Jenis</th>
+                                <th>Periode</th>
+                                <th>Durasi</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leave-requests-body">
+                            <!-- Data cuti render.js -->
+                        </tbody>
+                    </table>
+                </div>
 
-<div class="card">
-    <h3>Time Off / Leave Management</h3>
+                <!-- Approval Lembur/Izin Lainnya -->
+                <div style="flex: 1;">
+                    <h2>Permintaan Lembur/Izin Lain</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Tipe</th>
+                                <th>Tanggal</th>
+                                <th>Detail</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="other-approvals-body">
+                            <!-- Data approval render.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-    <div class="tabs-nav">
-        <button class="tab-button active-tab" onclick="switchTab(event, 'leave-requests-content', this)">Pengajuan Cuti
-            (Approval)</button>
+        <!-- 2. Rekap Absensi Hari Ini -->
+        <div id="attendance-rekap-content" class="tab-content">
+            <h2>Rekap Absensi (21 November 2025)</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Shift</th>
+                        <th>Clock In</th>
+                        <th>Clock Out</th>
+                        <th>Durasi Kerja</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="attendance-rekap-body">
+                    <!-- Data absensi render.js -->
+                </tbody>
+            </table>
+        </div>
 
-        <button class="tab-button" onclick="switchTab(event, 'leave-balance-content', this)">Saldo & Hak Cuti</button>
+        <!-- 3. Saldo Cuti -->
+        <div id="leave-balances-content" class="tab-content">
+            <h2>Saldo Cuti Tahunan Karyawan (Tahun Berjalan)</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Jatah Tahunan</th>
+                        <th>Terpakai</th>
+                        <th>Sisa Saldo</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="leave-balances-body">
+                    <!-- Data saldo cuti render.js -->
+                </tbody>
+            </table>
+        </div>
 
-        <button class="tab-button" onclick="switchTab(event, 'leave-history-content', this)">Riwayat Cuti</button>
-    </div>
-
-    <div id="leave-requests-content" class="tab-content active">
-        <h4 class="mt-20">Daftar Pengajuan Cuti Baru</h4>
-        <table id="leave-request-table" class="data-table">
-            <thead>
-                <tr>
-                    <th>Pemohon</th>
-                    <th>Jenis Cuti</th>
-                    <th>Periode</th>
-                    <th>Sisa Cuti</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-
-        <h4 class="mt-30">Overtime & Other Approval</h4>
-        <p class="text-info-small">Pengelolaan lembur dan izin sakit/dinas (Approval Digital). Data lembur terintegrasi
-            ke payroll.</p>
-        <button class="btn btn-warning btn-sm mb-15"><i class="fas fa-file-invoice"></i> Rekap Lembur Otomatis</button>
-
-        <table id="other-approval-table" class="data-table">
-            <thead>
-                <tr>
-                    <th>Pemohon</th>
-                    <th>Tipe</th>
-                    <th>Tanggal</th>
-                    <th>Detail</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-
-    <div id="leave-balance-content" class="tab-content">
-        <h4 class="mt-20">Saldo Cuti Karyawan (Accrual Otomatis & Real-time)</h4>
-        <table id="leave-balance-table" class="data-table">
-            <thead>
-                <tr>
-                    <th>Karyawan</th>
-                    <th>Hak Cuti Tahunan</th>
-                    <th>Cuti Terpakai</th>
-                    <th>Saldo Cuti Real-time</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-
-    <div id="leave-history-content" class="tab-content">
-        <h4 class="mt-20">Riwayat Penggunaan Cuti Karyawan</h4>
-        <p class="text-info-small">Klik pada nama karyawan di tab 'Saldo & Hak Cuti' untuk melihat riwayat individual.
-        </p>
-
-        <table id="employee-leave-history-table" class="data-table">
-            <thead>
-                <tr>
-                    <th>Tipe Cuti</th>
-                    <th>Tanggal Mulai</th>
-                    <th>Tanggal Selesai</th>
-                    <th>Durasi (Hari)</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="5" class="text-center">Pilih Karyawan atau Loading Data...</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 </div>

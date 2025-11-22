@@ -1,739 +1,593 @@
-// js/render.js (Fungsi-fungsi untuk Rendering Tampilan)
+// js/render.js (Logika Rendering DOM Aplikasi HRIS PRO - FINAL LENGKAP)
 
-// Catatan: Fungsi-fungsi ini mengasumsikan variabel data (employees, attendanceData, dll.)
-// telah dimuat dari js/data.js.
+// --- UTILITY FUNCTIONS ---
+function formatRupiah(number) {
+    if (typeof number !== 'number') {
+        // Asumsi dataKaryawan.salary sudah berupa string terformat jika number bukan number
+        return number;
+    }
+    const formatter = new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    });
+    return formatter.format(number);
+}
 
-// --- 1. DASHBOARD FUNCTIONS ---
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('id-ID', options);
+}
 
-// js/render.js - BAGIAN PERBAIKAN DASHBOARD
-const formatRupiah = (num) => `Rp ${Math.floor(num).toLocaleString('id-ID')}`;
+function getStatusBadge(status) {
+    let colorClass = 'badge-secondary';
+    let icon = '';
 
+    if (status.includes('Selesai') || status.includes('Disetujui')) {
+        colorClass = 'badge-success';
+        icon = '<i class="fa-solid fa-check-circle"></i>';
+    } else if (status.includes('Menunggu') || status.includes('Draft')) {
+        colorClass = 'badge-warning';
+        icon = '<i class="fa-solid fa-clock"></i>';
+    } else if (status.includes('Terlambat') || status.includes('Ditolak')) {
+        colorClass = 'badge-danger';
+        icon = '<i class="fa-solid fa-xmark-circle"></i>';
+    } else if (status.includes('Hadir Tepat Waktu')) {
+        colorClass = 'badge-primary';
+        icon = '<i class="fa-solid fa-calendar-check"></i>';
+    }
+
+    return `<span class="badge ${colorClass}">${icon} ${status}</span>`;
+}
+
+
+// --- 1. DASHBOARD RENDERING ---
+
+let currentCalendarDate; // Didefinisikan di core.js, tapi pastikan ada fallback
+if (typeof currentCalendarDate === 'undefined') {
+    currentCalendarDate = new Date();
+    currentCalendarDate.setFullYear(2025, 10, 21); // Simulasi tanggal 21 Nov 2025
+}
 
 function updateDashboardMetrics() {
-    // 1. Total Karyawan Aktif
-    const totalActive = employees.length;
-    // MENCARI ID BARU: 'metric-total-active'
-    const totalActiveEl = document.getElementById('metric-total-active');
-    if (totalActiveEl) totalActiveEl.textContent = totalActive;
+    // 1. Metrik Karyawan
+    document.getElementById('total-employees').textContent = employees.length;
+    document.getElementById('employees-tetap').textContent = employees.filter(e => e.contractStatus === 'Tetap').length;
+    document.getElementById('employees-kontrak').textContent = employees.filter(e => e.contractStatus === 'Kontrak').length;
+    document.getElementById('employees-it').textContent = employees.filter(e => e.department === 'IT').length;
+    document.getElementById('employees-hrd').textContent = employees.filter(e => e.department === 'HRD').length;
 
-    // 2. Tingkat Absensi (Simulasi)
-    // MENCARI ID BARU: 'metric-absensi-rate'
-    const absenceRateEl = document.getElementById('metric-absensi-rate');
-    // Angka 0.8% dari gambar
-    if (absenceRateEl) absenceRateEl.textContent = '0.8%';
+    // 2. Metrik Absensi
+    const hadir = attendanceData.filter(a => a.status.includes('Hadir')).length;
+    const terlambat = attendanceData.filter(a => a.status.includes('Terlambat')).length;
+    const tidakHadir = attendanceData.filter(a => a.status.includes('Tidak Hadir')).length;
 
-    // 3. Pengajuan Cuti Menunggu
-    const pendingLeave = leaveRequests.filter(r => r.status.includes('Menunggu')).length;
-    // MENCARI ID BARU: 'metric-pending-leave'
-    const pendingLeaveEl = document.getElementById('metric-pending-leave');
-    if (pendingLeaveEl) pendingLeaveEl.textContent = pendingLeave;
+    document.getElementById('total-hadir').textContent = hadir;
+    document.getElementById('total-terlambat').textContent = terlambat;
+    document.getElementById('total-tidak-hadir').textContent = tidakHadir;
 
-    // 4. Kontrak Berakhir (Simulasi)
-    const expiringContracts = employees.filter(e => e.contractStatus === 'Kontrak' && isContractExpiring(e.joinDate)).length;
-    // MENCARI ID BARU: 'metric-contract-ending'
-    const contractEndingEl = document.getElementById('metric-contract-ending');
-    // Angka 0 sesuai gambar
-    if (contractEndingEl) contractEndingEl.textContent = '0';
+    // 3. Peringatan Cepat (Simulasi)
+    const warningList = document.getElementById('quick-warnings');
+    warningList.innerHTML = '';
 
-    // --- Inisialisasi Tanggal Simulasi ---
-    const today = new Date();
-    // Atur hari ini ke 21 Nov 2025 untuk simulasi data
-    today.setFullYear(2025, 10, 21);
+    employees.filter(e => e.dataBPJS === 'Belum Lengkap').forEach(emp => {
+        warningList.innerHTML += `
+            <li class="text-danger"><i class="fa-solid fa-circle-exclamation"></i> Data BPJS ${emp.name} belum lengkap.</li>
+        `;
+    });
 
-    // Update karyawan cuti hari ini
-    let activeLeaveCount = 0;
-    if (typeof leaveRequests !== 'undefined') {
-        activeLeaveCount = leaveRequests.filter(req => {
-            const start = new Date(req.startDate);
-            const end = new Date(req.endDate);
-            // Cek apakah tanggal hari ini berada dalam rentang cuti
-            return req.status === 'Approved' && start <= today && end >= today;
-        }).length;
-    }
-    document.getElementById('active-leave').textContent = activeLeaveCount;
+    leaveRequests.filter(r => r.status.includes('Menunggu')).forEach(req => {
+        warningList.innerHTML += `
+            <li class="text-warning"><i class="fa-solid fa-clock"></i> Cuti ${req.name} (${req.days} hari) menunggu persetujuan.</li>
+        `;
+    });
 
-    // Update pending approvals (simulasi)
-    document.getElementById('pending-approvals').textContent = 2; // Contoh: 2 permintaan cuti menunggu
-
-    // INIT KALENDER: Panggil fungsi render kalender saat metrik diupdate
-    // Gunakan currentCalendarDate yang sudah disimulasikan
-    renderHRCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
-    document.getElementById('current-month-display').textContent = getMonthName(currentCalendarDate);
-
-
-
-    // Render Peringatan
-    renderSystemWarnings();
-}
-
-function renderSystemWarnings() {
-    const warningList = document.getElementById('system-warnings');
-    if (!warningList) return;
-
-    warningList.innerHTML = ''; // Clear existing warnings
-
-    // Peringatan 1: BPJS Belum Lengkap (Siti Aisyah)
-    const bpjsWarning = employees.find(e => e.dataBPJS && e.dataBPJS.includes('Belum Lengkap'));
-    if (bpjsWarning) {
-        warningList.innerHTML += `<li><i class="fas fa-exclamation-triangle text-danger"></i> Lengkapi data BPJS untuk <strong>${bpjsWarning.name}</strong>.</li>`;
+    if (warningList.innerHTML === '') {
+        warningList.innerHTML = `<li class="text-success"><i class="fa-solid fa-check"></i> Semua data operasional terlihat baik.</li>`;
     }
 
-    // Peringatan 2: Karyawan Terlambat 
-    const lateEmployees = attendanceData.filter(d => d.status.includes('Terlambat')).length;
-    if (lateEmployees > 0) {
-        warningList.innerHTML += `<li><i class="fas fa-exclamation-triangle text-warning"></i> <strong>${lateEmployees} karyawan</strong> terlambat clock-in hari ini.</li>`;
-    }
-
-    // Peringatan 3: Kebijakan Cuti 
-    warningList.innerHTML += `<li><i class="fas fa-info-circle text-info"></i> Tinjau kebijakan Cuti terbaru yang berlaku 1 Jan 2026.</li>`;
+    // 4. Kalender Event
+    renderCalendar();
 }
 
-// Tambahkan atau pastikan fungsi isContractExpiring ada di render.js
-function isContractExpiring(joinDate) {
-    return false;
-}
+function renderCalendar() {
+    const monthYearDisplay = document.getElementById('calendar-month-year');
+    const daysContainer = document.getElementById('calendar-days');
 
-// --- 2. CORE HR (LIST & DETAIL) FUNCTIONS ---
-
-function filterAndRenderEmployees() {
-    const tableBody = document.getElementById('employee-list-body');
-    if (!tableBody) return; // Keluar jika bukan di halaman Core HR List
-
-    // (Simulasi Filter & Sortasi di sini jika diperlukan)
-
-    tableBody.innerHTML = '';
-    employees.forEach((emp, index) => {
-        const row = document.createElement('tr');
-        const photo = emp.photoUrl ? `<img src="${emp.photoUrl}" alt="${emp.name}" class="employee-photo">` : 'N/A';
-        const statusClass = emp.contractStatus === 'Tetap' ? 'status-tetap' : 'status-kontrak';
-
-        row.innerHTML = `
-            <td>${photo}</td>
-            <td>${emp.nik}</td>
-            <td>${emp.name}</td>
-            <td>${emp.position}</td>
-            <td>${emp.department}</td>
-            <td><span class="status-badge ${statusClass}">${emp.contractStatus}</span></td>
-            <td>
-                <button class="btn btn-secondary btn-sm" onclick="showDetail(${index})">
-                    <i class="fas fa-eye"></i> Detail
-                </button>
-                <button class="btn btn-warning btn-sm" onclick="openModal('edit', ${index})">
-                    <i class="fas fa-edit"></i> Edit
-                </button>
-                <button class="btn btn-danger btn-sm" onclick="deleteEmployee(${index})">
-                    <i class="fas fa-trash"></i> Hapus
-                </button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-// FUNGSI INI ADALAH KUNCI UNTUK MENGATASI ERROR UNDEFINED DI DETAIL KARYAWAN
-function renderPersonalData(emp) {
-    if (!emp) return;
-
-    const content = document.getElementById('personal');
-    if (!content) return;
-
-    // Menggunakan template grid yang sama dengan pages/employee-detail.html
-    content.innerHTML = `
-        <button class="btn btn-warning mb-20" onclick="openModal('edit', currentEmployeeIndex)"><i class="fas fa-edit"></i> Edit Data</button>
-        <div class="data-detail-grid">
-            <div class="data-item"><span>NIK</span><strong>${emp.nik || '-'}</strong></div>
-            <div class="data-item"><span>Nama Lengkap</span><strong>${emp.fullName || '-'}</strong></div>
-            <div class="data-item"><span>Email</span><strong>${emp.email || '-'}</strong></div>
-            <div class="data-item"><span>No Rekening Bank</span><strong>${emp.bankAccount || '-'}</strong></div>
-            <div class="data-item"><span>Data KTP</span><strong>${emp.dataKTP || '-'}</strong></div>
-            <div class="data-item"><span>Data BPJS</span><strong>${emp.dataBPJS || '-'}</strong></div>
-            <div class="data-item"><span>Tanggal Lahir</span><strong>${emp.birthDate || '-'}</strong></div>
-            <div class="data-item"><span>No Telepon</span><strong>${emp.phone || '-'}</strong></div>
-            <div class="data-item wide"><span>Alamat Lengkap</span><strong>${emp.address || '-'}</strong></div>
-        </div>
-    `;
-}
-
-function renderJobData(emp) {
-    if (!emp) return;
-    const content = document.getElementById('job');
-    if (!content) return;
-
-    content.innerHTML = `
-        <div class="data-detail-grid">
-            <div class="data-item"><span>Jabatan</span><strong>${emp.position || '-'}</strong></div>
-            <div class="data-item"><span>Departemen</span><strong>${emp.department || '-'}</strong></div>
-            <div class="data-item"><span>Status Kontrak</span><strong>${emp.contractStatus || '-'}</strong></div>
-            <div class="data-item"><span>Tanggal Bergabung</span><strong>${emp.joinDate || '-'}</strong></div>
-            <div class="data-item"><span>Level Jabatan</span><strong>${emp.level || '-'}</strong></div>
-            <div class="data-item"><span>Manajer Langsung</span><strong>${emp.manager || '-'}</strong></div>
-            <div class="data-item wide"><span>Gaji Pokok (Simulasi)</span><strong>${emp.salary || 'Rahasia'}</strong></div>
-        </div>
-    `;
-}
-
-function renderCareerHistory(emp) {
-    if (!emp || !emp.careerHistory) return;
-    const content = document.getElementById('career');
-    if (!content) return;
-
-    let html = '<div class="timeline-container">';
-    emp.careerHistory.forEach(item => {
-        html += `
-            <div class="timeline-item">
-                <div class="timeline-date">${item.date}</div>
-                <div class="timeline-content">
-                    <strong>${item.type}</strong>
-                    <p>${item.detail}</p>
-                </div>
-            </div>
-        `;
-    });
-    html += '</div>';
-    content.innerHTML = html;
-}
-
-function renderDocumentData(emp) {
-    if (!emp || !emp.documents) return;
-    const content = document.getElementById('docs');
-    if (!content) return;
-
-    let html = '<p class="text-info-small">Daftar dokumen digital karyawan (simulasi link download).</p>';
-    html += '<div class="data-detail-grid">';
-
-    emp.documents.forEach(doc => {
-        html += `
-            <div class="data-item">
-                <span>${doc.name}</span>
-                <a href="${doc.uri}" class="btn btn-info btn-sm" target="_blank"><i class="fas fa-download"></i> Unduh</a>
-            </div>
-        `;
-    });
-    html += '</div>';
-    content.innerHTML = html;
-}
-
-// --- 3. ATTENDANCE FUNCTIONS ---
-
-function renderAttendanceRekap() {
-    const tableBody = document.querySelector('#attendance-rekap-table tbody');
-    if (!tableBody) return;
-
-    tableBody.innerHTML = '';
-    attendanceData.forEach(data => {
-        const statusClass = data.status.includes('Tepat') ? 'status-tetap' : (data.status.includes('Terlambat') ? 'status-warning' : 'status-danger');
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${data.name}</td>
-            <td>${data.shift}</td>
-            <td>${data.clockIn}</td>
-            <td>${data.clockOut}</td>
-            <td>${data.duration}</td>
-            <td><span class="status-badge ${statusClass}">${data.status}</span></td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-function renderLeaveRequests() {
-    const tableBody = document.querySelector('#leave-request-table tbody');
-    if (!tableBody) return;
-
-    tableBody.innerHTML = '';
-    leaveRequests.forEach(request => {
-        const statusClass = request.status.includes('Menunggu Atasan') ? 'status-warning' : 'status-pending';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${request.name}</td>
-            <td>${request.type}</td>
-            <td>${request.period}</td>
-            <td>${request.remaining}</td>
-            <td><span class="status-badge ${statusClass}">${request.status}</span></td>
-            <td>
-                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('leave', ${request.id})">
-                    <i class="fas fa-search"></i> Review
-                </button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-function renderLeaveBalances() {
-    const tableBody = document.querySelector('#leave-balance-table tbody');
-    if (!tableBody) return;
-
-    tableBody.innerHTML = '';
-    leaveBalances.forEach(balance => {
-        const row = document.createElement('tr');
-        const remainingColor = balance.balance < 5 ? 'text-danger' : 'text-success';
-
-        row.innerHTML = `
-            <td><a href="#" onclick="event.preventDefault(); openLeaveHistoryModal('${balance.name}')" class="text-primary">${balance.name}</a></td>
-            <td>${balance.annualQuota} Hari</td>
-            <td>${balance.used} Hari</td>
-            <td><strong class="${remainingColor}">${balance.balance} Hari</strong></td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-function renderEmployeeLeaveHistory(employeeName) {
-    const tableBody = document.querySelector('#employee-leave-history-table tbody');
-    if (!tableBody) return;
-
-    // SIMULASI data riwayat cuti spesifik per karyawan
-    const historyData = [
-        { name: "Budi Santoso", type: "Tahunan", start: "2024-05-10", end: "2024-05-12", duration: 3, status: "Disetujui" },
-        { name: "Siti Aisyah", type: "Sakit", start: "2025-01-01", end: "2025-01-01", duration: 1, status: "Disetujui" }
-    ];
-
-    const filteredHistory = historyData.filter(h => h.name === employeeName);
-
-    tableBody.innerHTML = '';
-
-    if (filteredHistory.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5" class="text-center">Tidak ada riwayat cuti yang tercatat.</td></tr>`;
-        return;
-    }
-
-    filteredHistory.forEach(h => {
-        const statusClass = h.status === 'Disetujui' ? 'status-approved' : 'status-rejected';
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${h.type}</td>
-            <td>${h.start}</td>
-            <td>${h.end}</td>
-            <td>${h.duration} Hari</td>
-            <td><span class="status-badge ${statusClass}">${h.status}</span></td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-
-function renderApprovalRecords() {
-    const tableBody = document.querySelector('#other-approval-table tbody');
-    if (!tableBody) return;
-
-    tableBody.innerHTML = '';
-    approvalRecords.forEach(record => {
-        const statusClass = record.status.includes('Menunggu') ? 'status-pending' : 'status-warning';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${record.name}</td>
-            <td>${record.type}</td>
-            <td>${record.date}</td>
-            <td>${record.detail}</td>
-            <td><span class="status-badge ${statusClass}">${record.status}</span></td>
-            <td>
-                <button class="btn btn-primary btn-sm" onclick="openApprovalModal('other', ${record.id})">
-                    <i class="fas fa-search"></i> Review
-                </button>
-            </td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-function renderReviewContent(record, recordType, reviewContentElement) {
-    // Fungsi ini dipanggil dari core.js saat modal dibuka
-    reviewContentElement.innerHTML = `
-        <div class="review-content-grid">
-            <div class="data-item"><span>Pemohon</span><strong>${record.name}</strong></div>
-            <div class="data-item"><span>Tipe ${recordType}</span><strong>${record.type}</strong></div>
-            <div class="data-item"><span>Tanggal Pengajuan</span><strong>${record.date || record.period}</strong></div>
-            <div class="data-item wide">
-                <span>Keterangan / Detail</span>
-                <p>${record.detail || 'Tidak ada keterangan tambahan.'}</p>
-            </div>
-            ${record.days ? `<div class="data-item"><span>Durasi Cuti</span><strong>${record.days} Hari</strong></div>` : ''}
-            ${record.remaining ? `<div class="data-item"><span>Sisa Cuti Setelah Ini</span><strong>${record.remaining}</strong></div>` : ''}
-        </div>
-    `;
-}
-
-// --- 4. PAYROLL FUNCTIONS ---
-
-// Fungsi untuk membuat baris tabel Payroll Rekap
-function createPayrollRekapRow(data) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-        <td>${data.month}</td>
-        <td>${data.totalEmployees}</td>
-        <td>${data.netPayroll}</td>
-        <td>
-            <span class="status-badge ${data.status.includes('Selesai') ? 'status-success' : 'status-draft'}">
-                ${data.status}
-            </span>
-            </span>
-        </td>
-        <td>
-            <button class="btn btn-sm btn-detail" onclick="setPayrollView('detail', '${data.month}')">
-                <i class="fas fa-search"></i> Detail
-            </button>
-        </td>
-    `;
-    return tr;
-}
-
-// Fungsi yang dipanggil di initializePage
-// Fungsi ini mengambil data dari payrollRekap dan menampilkan tabel rekapitulasi.
-function renderPayrollRekap() {
-    // ID tabel harus sinkron dengan payroll.html
-    const tableBody = document.querySelector('#payroll-rekap-table tbody');
-
-    if (!tableBody) {
-        console.error("Error: Element #payroll-rekap-table tbody tidak ditemukan.");
-        return; // Hentikan fungsi jika elemen tidak ada
-    }
-
-    tableBody.innerHTML = ''; // Kosongkan data lama
-
-    // Gunakan data global payrollRekap dari data.js
-    if (typeof payrollRekap !== 'undefined') {
-        payrollRekap.forEach(data => {
-            const row = createPayrollRekapRow(data);
-            tableBody.appendChild(row);
-        });
-    } else {
-        console.error("Error: Variabel payrollRekap belum didefinisikan di data.js.");
-    }
-}
-
-// Fungsi ini akan dipanggil di halaman detail payroll
-// Fungsi ini menampilkan perhitungan rinci (Gaji, Lembur, Potongan PPh 21/BPJS) dari data.js.
-function renderPayrollDetail(month) {
-    const detailDiv = document.getElementById('payroll-detail-content');
-    if (!detailDiv) return;
-
-    // Header
-    let html = `<h3>Detail Payroll Bulan ${month}</h3><hr>`;
-
-    // Tabel Simulasi Perhitungan
-    html += `
-        <table class="data-table mt-15" id="payroll-detail-table">
-            <thead>
-                <tr>
-                    <th>Karyawan</th>
-                    <th>Gaji Pokok</th>
-                    <th>Tunjangan</th>
-                    <th>Lembur (Simulasi)</th>
-                    <th>Potongan PPh 21</th>
-                    <th>Potongan BPJS</th>
-                    <th>Net Salary (Estimasi)</th>
-                </tr>
-            </thead>
-            <tbody>
-            <h4 class="mt-30">Output Penting Payroll</h4>
-            <div class="payroll-output-controls">
-                <button class="btn btn-success" onclick="simulateDownload('Slip Gaji PDF', '${month}')"><i class="fas fa-file-pdf"></i> Generate Slip Gaji PDF</button>
-                <button class="btn btn-warning" onclick="simulateDownload('File Transfer Bank', '${month}')"><i class="fas fa-file-excel"></i> File Transfer Bank</button>
-                <button class="btn btn-info" onclick="simulateDownload('File BPJS dan Pajak', '${month}')"><i class="fas fa-file-invoice"></i> File BPJS/Pajak</button>
-            </div>
-    `;
-
-
-    // Looping untuk menghitung gaji setiap karyawan
-    employees.forEach(emp => {
-        const base = emp.payrollDetail.baseSalary;
-        const allowance = emp.payrollDetail.fixedAllowance;
-
-        // SIMULASI: Tambahkan Komponen Lain (Lembur)
-        const overtime = (emp.department === 'IT') ? 500000 : 250000; // IT dapat lembur lebih besar
-        // const overtime = 500000; // Simulasi lembur tetap
-
-        const gross = base + allowance + overtime;
-
-        const bpjsTotal = emp.payrollDetail.bpjsTk + emp.payrollDetail.bpjsKs;
-        const pph21 = gross * emp.payrollDetail.pph21Rate;
-
-        const netSalary = gross - bpjsTotal - pph21;
-
-        // Helper untuk format Rupiah
-
-        html += `
-            <tr>
-                <td>${emp.name}</td>
-                <td>${formatRupiah(base)}</td>
-                <td>${formatRupiah(allowance)}</td>
-                <td>${formatRupiah(overtime)}</td>
-                <td class="text-danger">(${formatRupiah(pph21)})</td>
-                <td class="text-danger">(${formatRupiah(bpjsTotal)})</td>
-                <td><strong>${formatRupiah(netSalary)}</strong></td>
-            </tr>
-        `;
-    });
-
-    html += `</tbody></table>`;
-
-    detailDiv.innerHTML = html;
-}
-
-function renderDisbursementTable() {
-    const tableBody = document.querySelector('#disbursement-table tbody');
-    if (!tableBody) return;
-    tableBody.innerHTML = '';
-
-    disbursementRecords.forEach(record => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${record.month}</td>
-            <td>${record.totalAmount}</td>
-            <td>${record.maker}</td>
-            <td>${record.approver}</td>
-            <td>
-                <span class="status-badge status-${record.status.toLowerCase()}">
-                    ${record.status}
-                </span>
-            </td>
-            <td>
-                <button class="btn btn-sm btn-success" ${record.status === 'Draft' ? '' : 'disabled'} onclick="disbursePayroll('${record.month}')">
-                    <i class="fas fa-share-square"></i> Disburse
-                </button>
-            </td>
-        `;
-        tableBody.appendChild(tr);
-    });
-}
-
-// function renderPayrollRekap() {
-//     const tableBody = document.getElementById('payroll-rekap-body');
-//     if (!tableBody) return;
-
-//     tableBody.innerHTML = '';
-//     payrollRekap.forEach(rekap => {
-//         const statusClass = rekap.status.includes('Final') ? 'status-approved' : 'status-pending';
-
-//         const row = document.createElement('tr');
-//         row.innerHTML = `
-//             <td>${rekap.month}</td>
-//             <td>${rekap.totalEmployees} Karyawan</td>
-//             <td><strong>${rekap.netPayroll}</strong></td>
-//             <td><span class="status-badge ${statusClass}">${rekap.status}</span></td>
-//             <td>
-//                 <button class="btn btn-info btn-sm" onclick="downloadPayslip('Rekap ${rekap.month}')">
-//                     <i class="fas fa-download"></i> Download
-//                 </button>
-//                 ${rekap.status.includes('Final') ? '' : `<button class="btn btn-primary btn-sm" onclick="generatePayroll()">
-//                     <i class="fas fa-calculator"></i> Proses
-//                 </button>`}
-//             </td>
-//         `;
-//         tableBody.appendChild(row);
-//     });
-// }
-
-
-/* CALENDAR */
-// Variabel Global untuk Kalender
-let currentCalendarDate = new Date();
-// Atur tanggal ke 21 November 2025 (sama dengan tanggal saat ini di simulasi data)
-currentCalendarDate.setFullYear(2025, 10, 21);
-// Helper function untuk mendapatkan nama bulan
-const getMonthName = (date) => date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-
-// Fungsi untuk mengganti bulan yang dilihat di kalender
-function changeMonth(delta) {
     // Pastikan currentCalendarDate adalah objek Date yang valid
     if (!(currentCalendarDate instanceof Date)) {
         currentCalendarDate = new Date();
     }
 
-    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
-    renderHRCalendar(currentCalendarDate.getFullYear(), currentCalendarDate.getMonth());
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth(); // 0-indexed
 
-    // Update display bulan di header kalender
-    document.getElementById('current-month-display').textContent = getMonthName(currentCalendarDate);
-}
+    monthYearDisplay.textContent = new Date(year, month).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    daysContainer.innerHTML = '';
 
-// Fungsi utama untuk me-render kalender HR (Fungsi yang sangat penting untuk tampilan kalender)
-function renderHRCalendar(year, month) {
-    const today = new Date();
-    // Atur tanggal hari ini ke simulasi 21 November 2025 agar sesuai dengan data
-    today.setFullYear(2025, 10, 21);
+    // Hitung hari pertama bulan dan jumlah hari dalam bulan
+    const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0=Minggu, 1=Senin
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    const calendarContainer = document.getElementById('hr-calendar-container');
-    if (!calendarContainer) return;
+    // Hari ini (tanggal simulasi 21 Nov 2025)
+    const today = new Date(2025, 10, 21);
 
-    calendarContainer.innerHTML = '';
+    // Isi hari-hari kosong di awal bulan
+    // Perhatikan: JavaScript getDay() 0=Minggu. Kita ingin 1=Senin.
+    const startDayIndex = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
 
-    // 1. Definisikan Hari Awal dan Akhir Bulan
-    const firstDayOfMonth = new Date(year, month, 1);
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    // getDay() mengembalikan 0 untuk Minggu, 1 untuk Senin, dst.
-    const firstDayOfWeek = firstDayOfMonth.getDay();
+    for (let i = 0; i < startDayIndex; i++) {
+        daysContainer.innerHTML += '<div></div>';
+    }
 
-    // 2. Buat Header Hari
-    const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-    dayNames.forEach(day => {
-        calendarContainer.innerHTML += `<div class="day-header">${day}</div>`;
-    });
+    // Isi tanggal
+    for (let day = 1; day <= daysInMonth; day++) {
+        const currentDate = new Date(year, month, day);
+        let classes = 'calendar-day';
+        let eventsHtml = '';
 
-    // 3. Hitung tanggal mulai grid (untuk mengisi hari-hari di bulan sebelumnya)
-    let startDate = new Date(firstDayOfMonth);
-    // Mundur ke hari Minggu pertama di baris kalender
-    startDate.setDate(startDate.getDate() - firstDayOfWeek);
+        // Tanda Hari Ini (Tanggal simulasi 21 Nov)
+        const isToday = (currentDate.getDate() === today.getDate() &&
+            currentDate.getMonth() === today.getMonth() &&
+            currentDate.getFullYear() === today.getFullYear());
 
-    // 4. Looping untuk membuat sel kalender (Total 6 minggu x 7 hari = 42 sel untuk memastikan tampilan penuh)
-    for (let i = 0; i < 42; i++) {
-        const currentDate = new Date(startDate);
-        currentDate.setDate(startDate.getDate() + i);
-
-        const currentDay = currentDate.getDate();
-        const currentMonth = currentDate.getMonth();
-        const currentYear = currentDate.getFullYear();
-
-        let cellClass = 'day-cell';
-        let cellHTML = `<span>${currentDay}</span>`;
-
-        // Tandai sel bulan lain
-        if (currentMonth !== month) {
-            cellClass += ' other-month';
-        }
-
-        // Tandai Hari Ini
-        const isToday = currentDay === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
         if (isToday) {
-            cellClass += ' today';
+            classes += ' today';
         }
 
-        // 5. Cek Event untuk Tanggal Ini
-        let eventsHTML = '';
-        const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
+        // Cek Event
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-        // A. Cek Event HR Global (Gajian, Pelatihan)
-        if (typeof hrEvents !== 'undefined') {
-            hrEvents.filter(e => e.date === dateString).forEach(event => {
-                const typeClass = event.type === 'payroll' ? 'event-payroll' : 'event-other';
-                eventsHTML += `<span class="event-indicator ${typeClass}" title="${event.title}">${event.title}</span>`;
-            });
-        }
+        const relevantEvents = hrEvents.filter(e => e.date === dateString);
 
-        // B. Cek Cuti
-        if (typeof leaveRequests !== 'undefined') {
-            leaveRequests.filter(req => req.status === 'Approved' &&
-                new Date(req.startDate) <= currentDate &&
-                new Date(req.endDate) >= currentDate
-            ).forEach(req => {
-                eventsHTML += `<span class="event-indicator event-leave" title="CUTI: ${req.name}">Cuti: ${req.name}</span>`;
-            });
-        }
+        relevantEvents.forEach(event => {
+            let eventClass = 'event-' + event.type;
+            let icon = '';
+            if (event.type === 'payroll') icon = '<i class="fa-solid fa-money-bill-transfer"></i>';
+            if (event.type === 'training') icon = '<i class="fa-solid fa-graduation-cap"></i>';
+            if (event.type === 'meeting') icon = '<i class="fa-solid fa-users"></i>';
 
-        // C. Cek Anniversary (Hanya pada bulan yang sedang dilihat)
-        if (currentMonth === month && typeof employees !== 'undefined') {
-            employees.filter(emp => {
-                const joinDate = new Date(emp.joinDate);
-                // Cek jika tanggal join sama dengan tanggal saat ini di bulan ini
-                return joinDate.getDate() === currentDay && joinDate.getMonth() === currentMonth;
-            }).forEach(emp => {
-                const years = currentYear - new Date(emp.joinDate).getFullYear();
-                if (years >= 1) { // Hanya tampilkan jika sudah 1 tahun atau lebih
-                    eventsHTML += `<span class="event-indicator event-anniversary" title="Anniversary ${years} Tahun: ${emp.name}">${years} Tahun Kerja</span>`;
-                }
-            });
-        }
+            eventsHtml += `<span class="event-dot ${eventClass}" title="${event.title}">${icon}</span>`;
+            classes += ' has-event';
+        });
 
-        calendarContainer.innerHTML += `<div class="${cellClass}">${cellHTML}${eventsHTML}</div>`;
-    }
-
-    // Panggil fungsi untuk mengisi daftar event hari ini (hanya jika hari ini)
-    if (year === today.getFullYear() && month === today.getMonth()) {
-        renderTodayEvents(today);
+        daysContainer.innerHTML += `<div class="${classes}">${day}${eventsHtml}</div>`;
     }
 }
 
-// Fungsi untuk mengisi daftar event hari ini di sidebar
-function renderTodayEvents(date) {
-    const todayEventsList = document.getElementById('today-events-list');
-    const todayDateDisplay = document.getElementById('today-date-display');
-
-    if (!todayEventsList || !todayDateDisplay) return;
-
-    todayEventsList.innerHTML = '';
-
-    const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    todayDateDisplay.textContent = date.toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-
-    let foundEvents = false;
-
-    // A. Event HR Global
-    if (typeof hrEvents !== 'undefined') {
-        hrEvents.filter(e => e.date === dateString).forEach(event => {
-            const typeClass = event.type === 'payroll' ? 'item-payroll' : 'item-other';
-            todayEventsList.innerHTML += `<div class="event-item ${typeClass}"><strong>${event.title}</strong></div>`;
-            foundEvents = true;
-        });
-    }
-
-    // B. Cuti Hari Ini
-    if (typeof leaveRequests !== 'undefined') {
-        leaveRequests.filter(req => req.status === 'Approved' &&
-            new Date(req.startDate) <= date &&
-            new Date(req.endDate) >= date
-        ).forEach(req => {
-            todayEventsList.innerHTML += `<div class="event-item item-leave"><strong>Cuti:</strong> ${req.name} (${req.type})</div>`;
-            foundEvents = true;
-        });
-    }
-
-    // C. Anniversary Hari Ini
-    if (typeof employees !== 'undefined') {
-        employees.filter(emp => {
-            const joinDate = new Date(emp.joinDate);
-            const years = date.getFullYear() - joinDate.getFullYear();
-            return years >= 1 && joinDate.getDate() === date.getDate() && joinDate.getMonth() === date.getMonth();
-        }).forEach(emp => {
-            const years = date.getFullYear() - new Date(emp.joinDate).getFullYear();
-            todayEventsList.innerHTML += `<div class="event-item item-anniversary"><strong>Anniversary ${years} Tahun:</strong> ${emp.name}</div>`;
-            foundEvents = true;
-        });
-    }
-
-    if (!foundEvents) {
-        todayEventsList.innerHTML = `<p class="text-muted text-center mt-10">Tidak ada event spesial hari ini.</p>`;
-    }
+function changeMonth(delta) {
+    const newDate = new Date(currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta));
+    currentCalendarDate = newDate;
+    renderCalendar();
 }
 
-// Fungsi untuk menampilkan modal perhitungan
-function showCalculationModal(employeeName, calculationType, details) {
-    const modal = document.getElementById('calculation-modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalBody = document.getElementById('modal-body-content');
 
-    if (!modal || !modalBody) return;
+// --- 2. CORE HR RENDERING ---
 
-    modalTitle.textContent = `Perhitungan ${calculationType} untuk ${employeeName}`;
+function filterAndRenderEmployees() {
+    const searchTerm = (document.getElementById('search-employee')?.value || '').toLowerCase();
+    const filterDept = document.getElementById('filter-department')?.value;
+    const filterStatus = document.getElementById('filter-status')?.value;
+    const employeeListBody = document.getElementById('employee-list-body');
 
-    let html = `
-        <table class="data-table" style="width: 100%;">
-            <thead>
-                <tr>
-                    <th>Deskripsi</th>
-                    <th>Nilai</th>
-                    <th>Keterangan</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    if (!employeeListBody) return;
 
-    details.forEach(item => {
-        const valueDisplay = item.isRupiah ? formatRupiah(item.value) : item.value;
+    let filteredEmployees = employees;
+
+    // Filter berdasarkan Pencarian
+    if (searchTerm) {
+        filteredEmployees = filteredEmployees.filter(emp =>
+            emp.name.toLowerCase().includes(searchTerm) ||
+            emp.nik.includes(searchTerm) ||
+            emp.position.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    // Filter berdasarkan Departemen
+    if (filterDept && filterDept !== 'all') {
+        filteredEmployees = filteredEmployees.filter(emp => emp.department === filterDept);
+    }
+
+    // Filter berdasarkan Status Kontrak
+    if (filterStatus && filterStatus !== 'all') {
+        filteredEmployees = filteredEmployees.filter(emp => emp.contractStatus === filterStatus);
+    }
+
+    let html = '';
+    filteredEmployees.forEach((emp, index) => {
+        // Cari index asli dari data karyawan global untuk fungsi edit/delete
+        const globalIndex = employees.findIndex(e => e.nik === emp.nik);
+
         html += `
             <tr>
-                <td>${item.label}</td>
-                <td>${valueDisplay}</td>
-                <td>${item.note || ''}</td>
+                <td>${emp.nik}</td>
+                <td>${emp.name}</td>
+                <td>${emp.position}</td>
+                <td>${emp.department}</td>
+                <td>${emp.contractStatus}</td>
+                <td>${formatDate(emp.joinDate)}</td>
+                <td class="action-buttons">
+                    <button class="btn btn-primary btn-sm" onclick="showDetail(${globalIndex})">
+                        <i class="fa-solid fa-eye"></i> Detail
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="openModal('edit', ${globalIndex})">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteEmployee(${globalIndex})">
+                        <i class="fa-solid fa-trash-can"></i> Hapus
+                    </button>
+                </td>
             </tr>
         `;
     });
 
-    html += `</tbody></table>`;
-
-    modalBody.innerHTML = html;
-
-    modal.style.display = 'flex';
+    employeeListBody.innerHTML = html || '<tr><td colspan="7" class="text-center">Tidak ada data karyawan yang ditemukan.</td></tr>';
 }
+
+// --- 3. EMPLOYEE DETAIL RENDERING ---
+
+function renderPersonalData(emp) {
+    const content = document.getElementById('personal');
+    if (!content) return;
+
+    content.innerHTML = `
+        <div class="card wide-card">
+            <h2><i class="fa-solid fa-user-circle"></i> Data Pribadi</h2>
+            <div class="detail-header">
+                <img src="${emp.photoUrl}" onerror="this.onerror=null; this.src='https://placehold.co/80x80/007bff/FFFFFF?text=HRIS'" alt="${emp.name}" class="employee-photo">
+                <div>
+                    <h3>${emp.fullName}</h3>
+                    <p>${emp.position} (${emp.department})</p>
+                    ${emp.dataBPJS.includes('Belum Lengkap') ?
+            `<span class="badge badge-danger">PERINGATAN: Data BPJS Belum Lengkap</span>` :
+            `<span class="badge badge-success">Data BPJS Lengkap</span>`
+        }
+                </div>
+            </div>
+            <div class="data-field"><span class="data-label">Email:</span> <span class="data-value">${emp.email}</span></div>
+            <div class="data-field"><span class="data-label">Telepon:</span> <span class="data-value">${emp.phone}</span></div>
+            <div class="data-field"><span class="data-label">Tanggal Lahir:</span> <span class="data-value">${formatDate(emp.birthDate)}</span></div>
+            <div class="data-field"><span class="data-label">Alamat:</span> <span class="data-value">${emp.address}</span></div>
+            <div class="data-field"><span class="data-label">No. KTP:</span> <span class="data-value">${emp.dataKTP}</span></div>
+            <div class="data-field"><span class="data-label">Akun Bank:</span> <span class="data-value">${emp.bankAccount}</span></div>
+            <div class="data-field"><span class="data-label">Data BPJS:</span> <span class="data-value">${emp.dataBPJS}</span></div>
+        </div>
+        <button class="btn btn-warning mt-3" onclick="openModal('edit', ${currentEmployeeIndex})"><i class="fa-solid fa-pen-to-square"></i> Edit Data Pribadi</button>
+    `;
+}
+
+function renderJobData(emp) {
+    const content = document.getElementById('job');
+    if (!content) return;
+
+    content.innerHTML = `
+        <div class="card wide-card">
+            <h2><i class="fa-solid fa-briefcase"></i> Data Pekerjaan</h2>
+            <div class="data-field"><span class="data-label">NIK:</span> <span class="data-value">${emp.nik}</span></div>
+            <div class="data-field"><span class="data-label">Jabatan:</span> <span class="data-value">${emp.position}</span></div>
+            <div class="data-field"><span class="data-label">Departemen:</span> <span class="data-value">${emp.department}</span></div>
+            <div class="data-field"><span class="data-label">Status Kontrak:</span> <span class="data-value">${getStatusBadge(emp.contractStatus)}</span></div>
+            <div class="data-field"><span class="data-label">Tanggal Gabung:</span> <span class="data-value">${formatDate(emp.joinDate)}</span></div>
+            <div class="data-field"><span class="data-label">Level Karyawan:</span> <span class="data-value">${emp.level}</span></div>
+            <div class="data-field"><span class="data-label">Atasan Langsung:</span> <span class="data-value">${emp.manager}</span></div>
+            <div class="data-field"><span class="data-label">Gaji Pokok (Simulasi):</span> <span class="data-value">${emp.salary}</span></div>
+        </div>
+        <button class="btn btn-warning mt-3" onclick="alert('Simulasi Edit Data Pekerjaan')"><i class="fa-solid fa-pen-to-square"></i> Edit Data Pekerjaan</button>
+    `;
+}
+
+function renderCareerHistory(emp) {
+    const content = document.getElementById('career');
+    if (!content) return;
+
+    let timelineHtml = emp.careerHistory.map(item => `
+        <div class="timeline-item">
+            <div class="timeline-date">${formatDate(item.date)}</div>
+            <div class="timeline-type"><strong>${item.type}</strong></div>
+            <div class="timeline-detail">${item.detail}</div>
+        </div>
+    `).join('');
+
+    content.innerHTML = `
+        <div class="card wide-card">
+            <h2><i class="fa-solid fa-timeline"></i> Riwayat Karir</h2>
+            <div class="timeline">
+                ${timelineHtml || '<p>Tidak ada riwayat karir yang tercatat.</p>'}
+            </div>
+        </div>
+        <button class="btn btn-primary mt-3" onclick="alert('Simulasi Tambah Riwayat Karir')"><i class="fa-solid fa-plus"></i> Tambah Riwayat</button>
+    `;
+}
+
+function renderDocumentData(emp) {
+    const content = document.getElementById('docs');
+    if (!content) return;
+
+    let docsHtml = emp.documents.map(doc => `
+        <div class="data-field">
+            <span class="data-label">${doc.name}:</span> 
+            <span class="data-value">
+                <a href="${doc.uri}" target="_blank" class="btn btn-secondary btn-sm">
+                    <i class="fa-solid fa-file-arrow-down"></i> Lihat Dokumen
+                </a>
+            </span>
+        </div>
+    `).join('');
+
+    content.innerHTML = `
+        <div class="card wide-card">
+            <h2><i class="fa-solid fa-folder-open"></i> Dokumen Digital</h2>
+            ${docsHtml || '<p>Tidak ada dokumen yang tersedia.</p>'}
+        </div>
+        <button class="btn btn-primary mt-3" onclick="alert('Simulasi Upload Dokumen')"><i class="fa-solid fa-cloud-arrow-up"></i> Upload Dokumen Baru</button>
+    `;
+}
+
+
+// --- 4. ATTENDANCE & APPROVAL RENDERING ---
+
+function renderAttendanceRekap() {
+    const tableBody = document.getElementById('attendance-rekap-body');
+    if (!tableBody) return;
+
+    let html = '';
+    attendanceData.forEach(data => {
+        html += `
+            <tr>
+                <td>${data.name}</td>
+                <td>${data.shift}</td>
+                <td>${data.clockIn}</td>
+                <td>${data.clockOut}</td>
+                <td>${data.duration}</td>
+                <td>${getStatusBadge(data.status)}</td>
+                <td><button class="btn btn-secondary btn-sm" onclick="openShiftModal('edit', '${data.name}')"><i class="fa-solid fa-calendar-alt"></i> Atur Shift</button></td>
+            </tr>
+        `;
+    });
+    tableBody.innerHTML = html;
+}
+
+function renderLeaveRequests() {
+    const tableBody = document.getElementById('leave-requests-body');
+    if (!tableBody) return;
+
+    let html = '';
+    leaveRequests.forEach(req => {
+        html += `
+            <tr>
+                <td>${req.name}</td>
+                <td>${req.type}</td>
+                <td>${req.period}</td>
+                <td>${req.days} Hari</td>
+                <td>${getStatusBadge(req.status)}</td>
+                <td class="action-buttons">
+                    <button class="btn btn-primary btn-sm" onclick="openApprovalModal('leave', ${req.id})" ${req.status.includes('Menunggu') ? '' : 'disabled'}>
+                        <i class="fa-solid fa-pen-ruler"></i> Review
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    tableBody.innerHTML = html;
+}
+
+function renderApprovalRecords() {
+    const tableBody = document.getElementById('other-approvals-body');
+    if (!tableBody) return;
+
+    let html = '';
+    approvalRecords.forEach(rec => {
+        html += `
+            <tr>
+                <td>${rec.name}</td>
+                <td>${rec.type}</td>
+                <td>${formatDate(rec.date)}</td>
+                <td>${rec.detail}</td>
+                <td>${getStatusBadge(rec.status)}</td>
+                <td class="action-buttons">
+                    <button class="btn btn-primary btn-sm" onclick="openApprovalModal('other', ${rec.id})" ${rec.status.includes('Menunggu') ? '' : 'disabled'}>
+                        <i class="fa-solid fa-pen-ruler"></i> Review
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    tableBody.innerHTML = html;
+}
+
+function renderLeaveBalances() {
+    const tableBody = document.getElementById('leave-balances-body');
+    if (!tableBody) return;
+
+    let html = '';
+    leaveBalances.forEach(bal => {
+        const remainingColor = bal.balance < 5 ? 'text-danger' : 'text-success';
+        html += `
+            <tr>
+                <td>${bal.name}</td>
+                <td>${bal.annualQuota} Hari</td>
+                <td>${bal.used} Hari</td>
+                <td class="${remainingColor}">${bal.balance} Hari</td>
+                <td>
+                    <button class="btn btn-secondary btn-sm" onclick="openLeaveHistoryModal('${bal.name}')">
+                        <i class="fa-solid fa-history"></i> Riwayat
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    tableBody.innerHTML = html;
+}
+
+function renderEmployeeLeaveHistory(employeeName) {
+    const tableBody = document.getElementById('leave-history-table-body');
+    if (!tableBody) return;
+
+    const filteredHistory = leaveHistoryData.filter(h => h.name === employeeName);
+
+    let html = '';
+    filteredHistory.forEach(history => {
+        html += `
+            <tr>
+                <td>${history.type}</td>
+                <td>${history.start} s/d ${history.end}</td>
+                <td>${history.duration} Hari</td>
+                <td>${getStatusBadge(history.status)}</td>
+            </tr>
+        `;
+    });
+    tableBody.innerHTML = html || '<tr><td colspan="4">Tidak ada riwayat cuti yang ditemukan.</td></tr>';
+}
+
+function renderReviewContent(record, recordType, targetElement) {
+    let content = `
+        <div class="data-field"><span class="data-label">Nama Karyawan:</span> <span class="data-value">${record.name}</span></div>
+        <div class="data-field"><span class="data-label">Jenis:</span> <span class="data-value">${record.type}</span></div>
+    `;
+
+    if (recordType === 'Pengajuan Cuti') {
+        content += `
+            <div class="data-field"><span class="data-label">Periode:</span> <span class="data-value">${record.period}</span></div>
+            <div class="data-field"><span class="data-label">Durasi:</span> <span class="data-value">${record.days} Hari</span></div>
+            <div class="data-field"><span class="data-label">Sisa Cuti:</span> <span class="data-value">${record.remaining}</span></div>
+        `;
+    } else { // Lembur/Izin Dinas
+        content += `
+            <div class="data-field"><span class="data-label">Tanggal:</span> <span class="data-value">${formatDate(record.date)}</span></div>
+            <div class="data-field"><span class="data-label">Detail Permintaan:</span> <span class="data-value">${record.detail}</span></div>
+        `;
+    }
+
+    content += `<div class="data-field"><span class="data-label">Status Saat Ini:</span> <span class="data-value">${getStatusBadge(record.status)}</span></div>`;
+
+    targetElement.innerHTML = content;
+}
+
+
+// --- 5. PAYROLL RENDERING ---
+
+function renderPayrollRekap() {
+    const tableBody = document.getElementById('payroll-rekap-body');
+    if (!tableBody) return;
+
+    let html = '';
+    payrollRekap.forEach(rekap => {
+        html += `
+            <tr>
+                <td>${rekap.month}</td>
+                <td>${rekap.totalEmployees} Karyawan</td>
+                <td><strong>${rekap.netPayroll}</strong></td>
+                <td>${getStatusBadge(rekap.status)}</td>
+                <td class="action-buttons">
+                    <button class="btn btn-primary btn-sm" onclick="setPayrollView('detail', '${rekap.month}')" ${rekap.status.includes('Draft') ? 'disabled' : ''}>
+                        <i class="fa-solid fa-list-check"></i> Detail
+                    </button>
+                    ${rekap.status.includes('Draft') ?
+                `<button class="btn btn-success btn-sm" onclick="generatePayroll()"><i class="fa-solid fa-calculator"></i> Hitung</button>` :
+                `<button class="btn btn-secondary btn-sm" onclick="simulateDownload('Laporan Payroll', '${rekap.month}')"><i class="fa-solid fa-download"></i> Laporan</button>`
+            }
+                </td>
+            </tr>
+        `;
+    });
+    tableBody.innerHTML = html;
+}
+
+function renderDisbursementTable() {
+    const tableBody = document.getElementById('disbursement-rekap-body');
+    if (!tableBody) return;
+
+    let html = '';
+    disbursementRecords.forEach(rec => {
+        html += `
+            <tr>
+                <td>${rec.month}</td>
+                <td>${rec.totalAmount}</td>
+                <td>${rec.maker}</td>
+                <td>${rec.approver}</td>
+                <td>${getStatusBadge(rec.status)}</td>
+                <td class="action-buttons">
+                    ${rec.status === 'Draft' ?
+                `<button class="btn btn-success btn-sm" onclick="disbursePayroll('${rec.month}')"><i class="fa-solid fa-share-alt"></i> Proses Transfer</button>` :
+                `<button class="btn btn-primary btn-sm" onclick="simulateDownload('Bukti Transfer', '${rec.month}')"><i class="fa-solid fa-download"></i> Bukti</button>`
+            }
+                </td>
+            </tr>
+        `;
+    });
+    tableBody.innerHTML = html;
+}
+
+
+// Kalkulasi Detail Payroll (Contoh sederhana)
+function calculateNetSalary(payrollDetail) {
+    const { baseSalary, fixedAllowance, bpjsTk, bpjsKs, pph21Rate } = payrollDetail;
+    const grossSalary = baseSalary + fixedAllowance;
+    const deductions = bpjsTk + bpjsKs;
+
+    // PPh 21 sederhana (hanya 5% dari Gaji Kotor)
+    const pph21 = grossSalary * pph21Rate;
+
+    const netSalary = grossSalary - deductions - pph21;
+
+    return { grossSalary, deductions, pph21, netSalary };
+}
+
+function renderPayrollDetail(month) {
+    const detailHeader = document.getElementById('payroll-detail-header');
+    const tableBody = document.getElementById('payroll-detail-body');
+    if (!detailHeader || !tableBody) return;
+
+    detailHeader.textContent = `Rincian Gaji Bulan ${month}`;
+
+    let totalNetSalary = 0;
+    let html = '';
+
+    employees.forEach(emp => {
+        // Asumsi data payrollDetail selalu ada di data.js
+        const payroll = emp.payrollDetail || { baseSalary: 0, fixedAllowance: 0, bpjsTk: 0, bpjsKs: 0, pph21Rate: 0 };
+        const calculation = calculateNetSalary(payroll);
+        totalNetSalary += calculation.netSalary;
+
+        html += `
+            <tr>
+                <td>${emp.nik}</td>
+                <td>${emp.name}</td>
+                <td>${emp.position}</td>
+                <td>${formatRupiah(calculation.grossSalary)}</td>
+                <td>${formatRupiah(calculation.deductions + calculation.pph21)}</td>
+                <td><strong>${formatRupiah(calculation.netSalary)}</strong></td>
+                <td class="action-buttons">
+                    <button class="btn btn-secondary btn-sm" onclick="downloadPayslip('${emp.name} - ${month}')">
+                        <i class="fa-solid fa-file-pdf"></i> Slip Gaji
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="alert('Simulasi Edit Komponen Gaji ${emp.name}')">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    tableBody.innerHTML = html;
+
+    // Update total net payroll di header (Simulasi: total diambil dari rekap)
+    const rekapData = payrollRekap.find(r => r.month === month);
+    document.getElementById('detail-total-net-payroll').textContent = rekapData ? rekapData.netPayroll : formatRupiah(totalNetSalary);
+}
+
+// Tambahkan inisialisasi awal saat DOM siap
+document.addEventListener('DOMContentLoaded', () => {
+    // Muat halaman default saat aplikasi dibuka (Dashboard)
+    loadPage('dashboard');
+
+    // Attach event listeners for search/filter in Core HR
+    const searchInput = document.getElementById('search-employee');
+    const filterDept = document.getElementById('filter-department');
+    const filterStatus = document.getElementById('filter-status');
+
+    if (searchInput) searchInput.addEventListener('input', filterAndRenderEmployees);
+    if (filterDept) filterDept.addEventListener('change', filterAndRenderEmployees);
+    if (filterStatus) filterStatus.addEventListener('change', filterAndRenderEmployees);
+});

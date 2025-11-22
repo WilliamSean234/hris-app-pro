@@ -1,32 +1,46 @@
-<div id="list-section">
-    <h2 class="section-title">Master Data Karyawan</h2>
+<!-- pages/core-hr.html -->
+<div class="core-hr-page">
+    <h1><i class="fa-solid fa-users"></i> Data Karyawan (Core HR)</h1>
 
-    <div class="controls-container">
-        <button class="btn btn-primary" onclick="openModal('add')">
-            <i class="fas fa-plus"></i> Tambah Karyawan Baru
-        </button>
+    <div class="card wide-card">
+        <div class="card-header">
+            Daftar Karyawan
+            <button class="btn btn-primary" onclick="openModal('add')"><i class="fa-solid fa-user-plus"></i> Tambah Karyawan Baru</button>
+        </div>
 
-        <div class="control-group">
-            <label for="department-filter">Filter Departemen:</label>
-            <select id="department-filter" onchange="filterAndRenderEmployees()">
-                <option value="Semua">Semua Departemen</option>
+        <!-- Filter & Search -->
+        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <input type="text" id="search-employee" placeholder="Cari NIK, Nama, atau Jabatan..." style="flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+            
+            <select id="filter-department" onchange="filterAndRenderEmployees()" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="all">Semua Departemen</option>
                 <option value="IT">IT</option>
                 <option value="HRD">HRD</option>
             </select>
-        </div>
 
-        <div class="control-group">
-            <label for="sort-order">Urutkan Berdasarkan:</label>
-            <select id="sort-order" onchange="filterAndRenderEmployees()">
-                <option value="name-asc">Nama (A-Z)</option>
-                <option value="name-desc">Nama (Z-A)</option>
+            <select id="filter-status" onchange="filterAndRenderEmployees()" style="padding: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <option value="all">Semua Status</option>
+                <option value="Tetap">Tetap</option>
+                <option value="Kontrak">Kontrak</option>
             </select>
         </div>
-    </div>
 
-    <table id="employee-table" class="data-table">
-        <thead>
-        </thead>
-        <tbody id="employee-list-body"> </tbody>
-    </table>
+        <!-- Employee List Table -->
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>NIK</th>
+                    <th>Nama</th>
+                    <th>Jabatan</th>
+                    <th>Departemen</th>
+                    <th>Status</th>
+                    <th>Tgl Gabung</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="employee-list-body">
+                <!-- Data will be rendered here by render.js -->
+            </tbody>
+        </table>
+    </div>
 </div>
