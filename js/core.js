@@ -91,28 +91,6 @@ function initializePage(pageId) {
             switchTab(null, 'leave-requests-content', defaultButton);
         }
     }
-    // 5. Logic Payroll Simulation (FINAL)
-
-    // else if (pageId === 'payroll') {
-    //     let viewToLoad = 'rekap';
-    //     renderPayrollRekap();
-
-    //     // Cek jika ada konteks untuk menampilkan detail payroll
-    //     if (pageLoadContext.month) {
-    //         renderPayrollDetail(pageLoadContext.month);
-    //     }
-    //     else if (pageLoadContext && pageLoadContext.view) {
-    //         viewToLoad = pageLoadContext.view;
-    //     }
-    //     else if (pageLoadContext && pageLoadContext.month) {
-    //         setPayrollView('detail', pageLoadContext.month);
-    //     } else {
-    //         // Default: Tampilkan rekap
-    //         setPayrollView('rekap');
-    //     }
-
-    //     setPayrollView(viewToLoad, pageLoadContext.month);
-    // }
 
     else if (pageId === 'payroll') {
         // Tentukan tampilan default: Rekap, Detail, atau Disbursement

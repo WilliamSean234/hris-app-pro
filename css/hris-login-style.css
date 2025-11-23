@@ -1,0 +1,128 @@
+/* css/hris-login-style.css - Gaya Isolasi untuk Halaman Login */
+
+/* REVISI: Memastikan body menempati seluruh viewport dan konten terpusat */
+body {
+    display: flex;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-dark);
+    line-height: 1.6;
+    /* Pusat horizontal */
+    align-items: center;
+    /* Pusat vertikal */
+    min-height: 100vh;
+    /* Tambahkan sedikit latar belakang gradien yang lembut untuk daya tarik */
+    background: linear-gradient(to bottom right, var(--bg-light), #e0e5ed);
+    margin: 0;
+}
+
+body {
+
+    background-color: var(--bg-light);
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+/* Kelas Isolasi untuk Card Login */
+.hris-login-card {
+    width: 100%;
+    max-width: 380px;
+    /* Sedikit dikecilkan agar terlihat fokus */
+    padding: 35px;
+    /* Padding lebih tebal */
+    text-align: center;
+    /* Meningkatkan shadow untuk efek 'mengambang' yang lebih jelas */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    /* Menggunakan border-radius dan background-color putih dari kelas .card Anda */
+}
+
+.hris-login-logo {
+    margin-bottom: 30px;
+    /* Margin lebih besar */
+}
+
+.hris-login-logo h2 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    /* Ukuran logo lebih besar */
+    font-weight: 800;
+    /* Lebih tebal */
+    letter-spacing: 1px;
+    border-bottom: none;
+    margin: 0;
+}
+
+.hris-login-form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.hris-login-form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+/* Styling Input Field yang Unik dan Konsisten */
+.hris-login-card input[type="text"],
+.hris-login-card input[type="password"] {
+    width: 100%;
+    padding: 12px 15px;
+    /* Padding vertikal lebih tebal */
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    /* Border radius sedikit lebih besar */
+    box-sizing: border-box;
+    font-size: 1rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.hris-login-card input:focus {
+    border-color: var(--primary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Styling Tombol Login */
+.hris-login-btn {
+    width: 100%;
+    padding: 14px 15px;
+    /* Padding tombol lebih besar */
+    font-size: 1.15rem;
+    /* Font tombol lebih besar */
+    margin-top: 15px;
+    font-weight: 600;
+    /* Warna dan hover diwarisi dari .btn.btn-primary */
+}
+
+.hris-login-btn:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    color: white;
+}
+
+.hris-login-forgot-password {
+    margin-top: 20px;
+    font-size: 0.95rem;
+}
+
+.hris-login-forgot-password a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.hris-login-forgot-password a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* Untuk perangkat mobile, pastikan card tidak terlalu lebar */
+@media (max-width: 500px) {
+    .hris-login-card {
+        margin: 20px;
+        max-width: 90%;
+        padding: 25px;
+    }
+}

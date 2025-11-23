@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login HRIS PRO</title>
+    <link rel="stylesheet" href="../css/hris-login-style.css">
+</head>
+
+<body>
+    <div class="card hris-login-card">
+        <div class="hris-login-logo">
+            <h2>HRIS PRO</h2>
+        </div>
+
+        <form action="/login" method="POST">
+            <div class="hris-login-form-group">
+                <label for="hris-login-username">Username</label>
+                <input type="text" id="hris-login-username" name="username" placeholder="Masukkan username Anda"
+                    required>
+            </div>
+            <div class="hris-login-form-group">
+                <label for="hris-login-password">Password</label>
+                <input type="password" id="hris-login-password" name="password" placeholder="Masukkan password Anda"
+                    required>
+            </div>
+            <button type="submit" class="btn btn-primary hris-login-btn" onclick="window.location.href='../index.html'">Login</button>
+        </form>
+
+        <div class="hris-login-forgot-password">
+            <a href="#">Lupa Password?</a>
+        </div>
+    </div>
+
+    <!-- Link JS Files (Harus di akhir body) -->
+    <script src="js/data.js"></script>
+    <script src="js/core.js"></script>
+    <script src="js/render.js"></script>
+
+</body>
+
+</html>

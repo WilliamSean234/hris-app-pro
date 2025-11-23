@@ -367,37 +367,37 @@
 /* --- CSS Tambahan untuk Layout Form Multi-Kolom (HRIS Event Form) --- */
 
 .hris-event-form {
-    padding-top: 5px; 
+    padding-top: 5px;
 }
 
 /* Judul Sub-section */
 .section-subtitle {
-    font-size: 1.15rem; 
+    font-size: 1.15rem;
     font-weight: 600;
     color: var(--text-dark);
     margin-top: 15px;
     margin-bottom: 15px;
-    border-bottom: 1px solid #e9ecef; 
+    border-bottom: 1px solid #e9ecef;
     padding-bottom: 5px;
 }
 
 /* Layout 2 Kolom Utama (50%/50%) */
 .form-row-2col {
     display: flex;
-    gap: 30px; 
+    gap: 30px;
 }
 
-.form-row-2col > .form-group-col {
-    flex: 1; 
+.form-row-2col>.form-group-col {
+    flex: 1;
 }
 
 /* Layout 4 Kolom di dalam Detail Waktu */
 .form-row-4col {
     display: flex;
-    gap: 15px; 
+    gap: 15px;
 }
 
-.form-row-4col > .form-group-col {
+.form-row-4col>.form-group-col {
     flex: 1;
 }
 
@@ -407,14 +407,14 @@
     gap: 20px;
 }
 
-.form-row-2col-nested > .form-group-col {
+.form-row-2col-nested>.form-group-col {
     flex: 1;
 }
 
 /* Gaya untuk opsi radio/checkbox grup */
 .recurrence-options-group {
     display: flex;
-    flex-direction: row; 
+    flex-direction: row;
     align-items: flex-start;
     gap: 25px;
     margin-top: 5px;
@@ -422,7 +422,7 @@
 }
 
 .recurrence-options-group label {
-    font-weight: normal; 
+    font-weight: normal;
     cursor: pointer;
     white-space: nowrap;
 }
@@ -434,21 +434,23 @@
 .form-group-col input[type="number"],
 .form-group-col select,
 /* Target input full width (Judul/Deskripsi Event) */
-.form-group-full input[type="text"], 
-.form-group-full select { 
+.form-group-full input[type="text"],
+.form-group-full select {
     width: 100%;
     padding: 10px 12px;
-    box-sizing: border-box; /* Sangat penting untuk lebar 100% yang konsisten */
+    box-sizing: border-box;
+    /* Sangat penting untuk lebar 100% yang konsisten */
     /* Input styling akan diwarisi dari base.css: border 1px solid #ccc, border-radius 4px */
 }
 
 .form-group-col label,
 .form-group-full label {
-    font-weight: 600; 
+    font-weight: 600;
     margin-bottom: 5px;
 }
 
 .form-actions-footer {
     text-align: right;
-    margin-top: 10px; 
+    margin-top: 10px;
 }
+
